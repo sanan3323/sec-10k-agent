@@ -1,0 +1,134 @@
+[project]
+name = "sec-10k-agent"
+description = "Multi-hop RAG agent for SEC 10-K filings, with citation grounding and CI-integrated evaluation."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Your Name", email = "you@example.com" }]
+keywords = ["rag", "llm", "agents", "sec", "edgar", "10-k", "finance"]
+dynamic = ["version"]
+
+# Phase 0/1 dependencies. Phase-specific deps go under optional groups so we
+# install only what the current phase needs.
+dependencies = [
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "httpx>=0.27",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.2",
+    "pandas>=2.2",
+    "pyarrow>=16.1",
+    "python-dotenv>=1.0",
+    "structlog>=24.1",
+    "typer>=0.12",
+    "tenacity>=8.3",            # retries for EDGAR rate-limit handling
+    "edgartools>=2.7",          # SEC filing primitives + iXBRL parsing
+]
+
+[project.optional-dependencies]
+# Phase 2: vector layer.
+# Postgres + pgvector instead of a dedicated vector DB — see ADR-001.
+# Embeddings run locally via sentence-transformers (BGE-large) — xAI ships
+# no embeddings model, and BGE is competitive on financial text for $0.
+vector = [
+    "psycopg[binary]>=3.2",
+    "pgvector>=0.3.6",
+    "sqlalchemy>=2.0",
+    "sentence-transformers>=3.0",
+    "torch>=2.3",               # heads-up: flaky on Intel Mac, see Phase 2 notes
+]
+
+# Phase 3+: LLM clients.
+# xAI is OpenAI-SDK-compatible (set base_url=https://api.x.ai/v1), so the
+# `openai` package serves Grok. Gemini is the LLM-as-judge in Phase 4 — must
+# be a different model family from the generator to avoid self-judge bias.
+llm = [
+    "openai>=1.30",
+    "google-genai>=0.3",
+    "streamlit>=1.35",
+]
+
+# Phase 4: evaluation.
+eval = [
+    "ragas>=0.1.10",
+    "datasets>=2.20",
+]
+
+# Phase 5: hybrid retrieval + reranking.
+retrieval = [
+    "rank-bm25>=0.2.2",
+    "FlagEmbedding>=1.2",       # for bge-reranker-v2-m3
+]
+
+# Phase 6: agent. Framework choice is deferred — see architecture.md.
+# Candidates evaluated then: LangGraph, PydanticAI, hand-rolled state machine.
+# Intentionally empty here so we don't pre-commit to one.
+agent = []
+
+# Phase 7: production.
+prod = [
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "redis>=5.0",
+    "langfuse>=2.60.0",
+    "slowapi>=0.1.9",           # rate limiting
+]
+
+dev = [
+    "pytest>=8.2",
+    "pytest-cov>=5.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "ipykernel>=6.29",
+]
+
+[project.scripts]
+sec10k = "sec_10k_agent.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+# Single source of truth for version. __init__.py exposes the same string
+# via importlib.metadata so the package and the installed dist agree.
+path = "src/sec_10k_agent/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sec_10k_agent"]
+
+#Tooling
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["E501"]   # line length handled by formatter
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.12"
+# Honest starting config: enforce typed defs but don't pretend to be fully
+# strict on every flag. Tighten incrementally as the codebase matures.
+disallow_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --cov=src/sec_10k_agent --cov-report=term-missing"
+asyncio_mode = "auto"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=7.1.0",
+]

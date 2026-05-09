@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Pin Python
+        run: uv python install 3.12
+
+      - name: Install project (with dev extras)
+        # uv sync respects uv.lock if present, ensuring CI uses the same
+        # resolved dependencies as the local environment.
+        run: uv sync --extra dev
+
+      - name: Lint (ruff)
+        run: uv run ruff check src tests
+
+      - name: Format check (ruff)
+        run: uv run ruff format --check src tests
+
+      - name: Type check (mypy)
+        # No continue-on-error. Mypy errors break the build. The mypy config
+        # in pyproject.toml is intentionally pragmatic (disallow_untyped_defs,
+        # not full strict) so this is a real bar without being aspirational.
+        run: uv run mypy src
+
+      - name: Tests
+        env:
+          # Tests use a placeholder user-agent. Real one would come from a
+          # repo secret if a future test actually hits EDGAR.
+          SEC_USER_AGENT: "ci-bot ci@example.com"
+        run: uv run pytest
+
+  # Eval workflow lives at .github/workflows/eval.yml and runs the RAGAS
+  # harness on every PR. Added in Phase 4 once we have a golden set.
