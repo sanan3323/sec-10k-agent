@@ -24,14 +24,17 @@ from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
 
+
 @runtime_checkable
 class TokenCounter(Protocol):
     """Protocol for counting tokens in a string."""
+
     def count(self, text: str) -> int: ...
 
 
 class WordCountTokenCounter:
     """Deterministic stand-in for tests. Counts whitespace-separated words."""
+
     def count(self, text: str) -> int:
         if not text:
             return 0
@@ -45,7 +48,7 @@ class BgeTokenCounter:
 
     def __init__(self) -> None:
         # We use Any to avoid complex type stubs for the transformers library
-        self._tokenizer: Any = None 
+        self._tokenizer: Any = None
 
     def count(self, text: str) -> int:
         if not text:
@@ -54,11 +57,12 @@ class BgeTokenCounter:
         if self._tokenizer is None:
             # Lazy import to keep the initial load fast
             from transformers import AutoTokenizer
+
             self._tokenizer = AutoTokenizer.from_pretrained(self._MODEL_NAME)
-        
+
         # Local reference for type narrowing
         tok = self._tokenizer
         if tok is None:
             raise RuntimeError("Failed to load BGE tokenizer")
-            
+
         return len(tok.encode(text, add_special_tokens=False))
