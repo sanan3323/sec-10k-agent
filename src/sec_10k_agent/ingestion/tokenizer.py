@@ -22,46 +22,43 @@ the chunker.
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Any, Protocol, runtime_checkable
 
-
+@runtime_checkable
 class TokenCounter(Protocol):
-    """Counts tokens in a string."""
-
+    """Protocol for counting tokens in a string."""
     def count(self, text: str) -> int: ...
 
 
 class WordCountTokenCounter:
-    """Deterministic stand-in for tests. Counts whitespace-separated words.
-
-    Not used in production. The chunker's behavior is identical with either
-    counter, but absolute token thresholds need to be tuned per counter.
-    """
-
+    """Deterministic stand-in for tests. Counts whitespace-separated words."""
     def count(self, text: str) -> int:
+        if not text:
+            return 0
         return len(text.split())
 
 
 class BgeTokenCounter:
-    """Counts BGE tokens. Lazy-loads the tokenizer on first use.
-
-    The tokenizer is loaded once per process and shared across calls. We use
-    `transformers.AutoTokenizer` directly rather than the full
-    `sentence_transformers.SentenceTransformer` so we don't pay for model
-    weights we don't need at chunking time.
-    """
+    """Counts BGE tokens. Lazy-loads the tokenizer on first use."""
 
     _MODEL_NAME = "BAAI/bge-large-en-v1.5"
 
     def __init__(self) -> None:
-        self._tokenizer = None  # lazy
+        # We use Any to avoid complex type stubs for the transformers library
+        self._tokenizer: Any = None 
 
     def count(self, text: str) -> int:
-        if self._tokenizer is None:
-            # Imported lazily so package import doesn't pull transformers.
-            from transformers import AutoTokenizer
+        if not text:
+            return 0
 
+        if self._tokenizer is None:
+            # Lazy import to keep the initial load fast
+            from transformers import AutoTokenizer
             self._tokenizer = AutoTokenizer.from_pretrained(self._MODEL_NAME)
-        # add_special_tokens=False so we count content tokens only. The
-        # caller's max-tokens budget should already account for [CLS]/[SEP].
-        return len(self._tokenizer.encode(text, add_special_tokens=False))
+        
+        # Local reference for type narrowing
+        tok = self._tokenizer
+        if tok is None:
+            raise RuntimeError("Failed to load BGE tokenizer")
+            
+        return len(tok.encode(text, add_special_tokens=False))
