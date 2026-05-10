@@ -5,8 +5,9 @@ Subcommands:
     download      Download 10-K filings to data/raw/.
     parse         Parse cached HTML into ParsedFiling intermediates.
     chunk         Chunk parsed filings into data/processed/chunks.parquet.
+    xbrl          Extract structured XBRL facts to data/processed/xbrl.parquet.
 
-Phase 1 will add `xbrl`. Phase 2 adds `index`.
+Phase 2 adds `index`.
 """
 
 from __future__ import annotations
@@ -137,7 +138,8 @@ def chunk(
     use_word_count: bool = typer.Option(
         False,
         "--word-count",
-        help="Use word-count token counter (fast, no model download). Default: BGE tokenizer.",
+        help="Use word-count token counter (fast, no model download). "
+        "Default: BGE tokenizer.",
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
@@ -175,7 +177,8 @@ def chunk(
         chunks = chunker.chunk(parsed)
         all_rows.extend(c.model_dump() for c in chunks)
         typer.echo(
-            f"  OK   {parsed.filing.ticker} FY{parsed.filing.fiscal_year}  chunks={len(chunks)}"
+            f"  OK   {parsed.filing.ticker} FY{parsed.filing.fiscal_year}  "
+            f"chunks={len(chunks)}"
         )
 
     if not all_rows:
@@ -186,6 +189,44 @@ def chunk(
     df = pd.DataFrame(all_rows)
     df.to_parquet(out_path, index=False)
     typer.echo(f"\nWrote {len(all_rows)} chunks to {out_path}")
+
+
+@app.command()
+def xbrl(
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Extract structured XBRL facts to data/processed/xbrl.parquet.
+
+    For each downloaded filing, fetches the structured XBRL data from EDGAR
+    (cached on first run), then converts to validated XBRLFact rows. Output
+    captures dimensional axes (geographic, segment, product) — the
+    architecture doc's acceptance test depends on this.
+    """
+    logging.basicConfig(
+        level=logging.DEBUG if verbose else logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+    from sec_10k_agent.ingestion import EdgarClient, extract_all_cached
+
+    settings = get_settings()
+    client = EdgarClient(
+        user_agent=settings.sec_user_agent,
+        rate_limit_per_sec=settings.sec_rate_limit_per_sec,
+        cache_dir=settings.raw_dir,
+    )
+
+    n_filings, n_facts, failures = extract_all_cached(
+        edgar_client=client,
+        raw_dir=settings.raw_dir,
+        processed_dir=settings.processed_dir,
+    )
+    typer.echo(
+        f"\nDone. filings={n_filings}  facts={n_facts}  failed={len(failures)}"
+    )
+    for accession, msg in failures:
+        typer.echo(f"  FAIL  {accession}: {msg}", err=True)
+    if failures:
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":
