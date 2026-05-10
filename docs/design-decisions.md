@@ -148,6 +148,18 @@ Adding Exhibit 13 support is real work — a separate fetcher, a separate parser
 
 The eval set can compensate: questions about JPM's MD&A that depend on Exhibit 13 content can be flagged as out of scope until the limitation is fixed.
 
+---
+
+## ADR-007 — Incorporated-by-reference content (JPM Exhibit 13, NVDA Item 8)
+
+**Status:** Accepted
+**Date:** 10-05-2026
+
+### Context
+
+Switched from sentence-transformers (PyTorch backend) to fastembed (ONNX runtime) for inference. sentence-transformers requires PyTorch, which has unreliable wheels on Intel Mac and forces a numpy version downgrade that conflicts with our other deps. fastembed runs the same BAAI/bge-large-en-v1.5 weights via ONNX with no PyTorch dependency. Output vectors are cosine-equivalent to the PyTorch version. Revisit if we move to GPU inference or need a model fastembed doesn't host.
+
+
 ### What would change our mind
 
 - Adding a fourth ticker that also incorporates by reference (typical for big banks).
