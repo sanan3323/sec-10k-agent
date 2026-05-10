@@ -28,6 +28,7 @@ from sec_10k_agent.ingestion.tokenizer import (
     TokenCounter,
     WordCountTokenCounter,
 )
+from sec_10k_agent.ingestion.xbrl import XBRLExtractor, extract_all_cached
 
 __all__ = [
     "PARSER_VERSION",
@@ -43,7 +44,9 @@ __all__ = [
     "Section",
     "TokenCounter",
     "WordCountTokenCounter",
+    "XBRLExtractor",
     "XBRLFact",
+    "extract_all_cached",
     "read_from_cache",
     "write_to_cache",
 ]
