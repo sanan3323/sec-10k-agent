@@ -2963,12 +2963,11 @@ retrieval = [
     { name = "rank-bm25" },
 ]
 vector = [
+    { name = "fastembed" },
     { name = "numpy" },
     { name = "pgvector" },
     { name = "psycopg", extra = ["binary"] },
-    { name = "sentence-transformers" },
     { name = "sqlalchemy" },
-    { name = "torch" },
 ]
 
 [package.dev-dependencies]
@@ -2986,6 +2985,7 @@ requires-dist = [
     { name = "edgartools", specifier = ">=2.7" },
     { name = "fastapi", marker = "extra == 'prod'", specifier = ">=0.111" },
     { name = "fastembed", specifier = ">=0.8.0" },
+    { name = "fastembed", marker = "extra == 'vector'", specifier = ">=0.8.0" },
     { name = "flagembedding", marker = "extra == 'retrieval'", specifier = ">=1.2" },
     { name = "google-genai", marker = "extra == 'llm'", specifier = ">=0.3" },
     { name = "httpx", specifier = ">=0.27" },
@@ -3013,14 +3013,12 @@ requires-dist = [
     { name = "rank-bm25", marker = "extra == 'retrieval'", specifier = ">=0.2.2" },
     { name = "redis", marker = "extra == 'prod'", specifier = ">=5.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4" },
-    { name = "sentence-transformers", marker = "extra == 'vector'", specifier = ">=2.7.0" },
     { name = "slowapi", marker = "extra == 'prod'", specifier = ">=0.1.9" },
     { name = "sqlalchemy", specifier = ">=2.0.49" },
     { name = "sqlalchemy", marker = "extra == 'vector'", specifier = ">=2.0" },
     { name = "streamlit", marker = "extra == 'llm'", specifier = ">=1.35" },
     { name = "structlog", specifier = ">=24.1" },
     { name = "tenacity", specifier = ">=8.3" },
-    { name = "torch", marker = "extra == 'vector'", specifier = ">=2.2.2" },
     { name = "transformers", specifier = "<5.0.0" },
     { name = "typer", specifier = ">=0.12" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'prod'", specifier = ">=0.30" },
