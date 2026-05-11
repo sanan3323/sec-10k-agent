@@ -137,7 +137,7 @@ With one DB, "give me chunks for AAPL FY2025 Item 1A near vector X" is one SQL q
 - **Sparse retrieval.** BM25 over the chunks parquet, or Postgres `tsvector` if it benchmarks better. Decision in Phase 5.
 - **Fusion.** Reciprocal Rank Fusion (k=60), top-k=20.
 - **Reranker.** `BAAI/bge-reranker-v2-m3` cross-encoder. Narrows 20 to 5.
-- **Context expansion.** At synthesis time, top-N retrieved chunks pull in their `prev_chunk_id` and `next_chunk_id` neighbors. Bounded so the context window doesn't blow up.
+- **Context expansion.** At synthesis time, top-N retrieved chunks pull in their `prev_chunk_id` and `next_chunk_id` neighbors. Expansion is bounded to 1 hop in each direction per retrieved chunk, with a total cap of 8,000 tokens across all expanded context. If the cap is hit, expansion stops and the un-expanded chunks are sent. The 1-hop limit prevents runaway expansion when several top-K chunks happen to be neighbors.
 
 ### 4. Agent (Phase 6)
 

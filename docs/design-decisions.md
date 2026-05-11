@@ -51,15 +51,17 @@ The agent layer (Phase 6) will be evaluated against three options: LangGraph, Py
 
 ## ADR-003 — Generator and judge model selection
 
-**Status:** Accepted (provisional)
-**Date:** 08-05-2026
+**Status:** Provisional — pending Phase 4 bake-off
+**Date:** 
 
 **Generator:** Grok via xAI API (project budget constraint, OpenAI-SDK-compatible).
 **Judge:** Gemini 2.5 Flash via Google's free tier.
 
 The two have to be different model families to avoid self-judge bias in Phase 4 evals. Ollama with a Llama-class model is the documented fallback if Gemini's free-tier rate limits become a problem under eval load.
 
-Revisit if Grok pricing changes the budget math, Gemini's free tier gets stricter, or empirical agreement between Gemini and a third judge (sample audit) is below 0.7 Cohen's kappa.
+### Pending Phase 4 decision
+
+Final generator selection happens in Phase 4 once the eval harness is in place. Plan: run Grok 4.3, Claude Haiku 4.5, and GPT-5-mini against the golden set, compare on (faithfulness × cost) per query. Write up the result as a follow-up ADR (ADR-008) with real numbers. Grok is the working default until then.
 
 ---
 
@@ -150,14 +152,28 @@ The eval set can compensate: questions about JPM's MD&A that depend on Exhibit 1
 
 ---
 
-## ADR-007 — Incorporated-by-reference content (JPM Exhibit 13, NVDA Item 8)
+## ADR-007 — Embedding inference: fastembed (ONNX) over sentence-transformers (PyTorch)
 
 **Status:** Accepted
-**Date:** 10-05-2026
+**Date:** 11-05-2026
 
 ### Context
 
-Switched from sentence-transformers (PyTorch backend) to fastembed (ONNX runtime) for inference. sentence-transformers requires PyTorch, which has unreliable wheels on Intel Mac and forces a numpy version downgrade that conflicts with our other deps. fastembed runs the same BAAI/bge-large-en-v1.5 weights via ONNX with no PyTorch dependency. Output vectors are cosine-equivalent to the PyTorch version. Revisit if we move to GPU inference or need a model fastembed doesn't host.
+Phase 2 needed local embedding inference for ~3,800 chunks against `BAAI/bge-large-en-v1.5`. The natural default was `sentence-transformers`, which has PyTorch as a hard dependency.
+
+### Decision
+
+Use `fastembed` instead. Same model weights, ONNX runtime, no PyTorch in the dependency graph.
+
+### Reasoning
+
+PyTorch wheels on Intel Mac are unreliable in 2026, and the NumPy version PyTorch wants conflicts with what the rest of our deps need. The "fix" path keeps breaking on every minor pin bump.
+
+`fastembed` runs `BAAI/bge-large-en-v1.5` via ONNX directly. Output vectors are cosine-equivalent to the PyTorch path — verified by spot-checking five queries returning the same top-K chunks at near-identical distances. CPU inference is comparable. No PyTorch means no NumPy fights.
+
+### What would change our mind
+
+Moving to GPU inference (PyTorch's CUDA path is harder to beat). Needing a model fastembed doesn't host. A future where Intel Mac is no longer a target — but by then this code probably runs on something else anyway.
 
 
 ### What would change our mind
