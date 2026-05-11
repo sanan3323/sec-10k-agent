@@ -1,7 +1,5 @@
-import numpy as np
+from fastembed import TextEmbedding
 from sqlalchemy import create_engine, text
-from fastembed import TextEmbedding 
-
 
 DB_URL = "postgresql+psycopg://postgres:postgres@localhost:5432/sec10k"
 engine = create_engine(DB_URL)
@@ -20,7 +18,7 @@ for query, filters in queries:
     print(f"Query: {query}  filters={filters}")
     print("=" * 70)
 
-    vec = list(model.embed([query]))[0]
+    vec = next(iter(model.embed([query])))
     vec_literal = "[" + ",".join(repr(float(x)) for x in vec) + "]"
 
     sql = """

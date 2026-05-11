@@ -1,8 +1,9 @@
+from pathlib import Path
+
 import pandas as pd
+import torch
 from sentence_transformers import SentenceTransformer
 from sqlalchemy import create_engine
-import torch
-from pathlib import Path
 
 """ Using in google colab"""
 
@@ -27,7 +28,7 @@ def generate_embeddings():
     df['embedding'] = embeddings.tolist()
     
     engine = create_engine(DB_URL)
-    print(f"Uploading to 'text_chunks'")
+    print("Uploading to 'text_chunks'")
     
     if 'id' in df.columns:
         df = df.drop(columns=['id'])

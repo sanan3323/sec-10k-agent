@@ -1,8 +1,8 @@
+from pathlib import Path
+
 import pandas as pd
-import json
 import sqlalchemy
 from sqlalchemy import create_engine
-from pathlib import Path
 
 DB_URL = "postgresql://postgres:postgres@localhost:5432/sec10k"
 

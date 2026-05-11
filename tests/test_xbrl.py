@@ -21,7 +21,6 @@ from sec_10k_agent.ingestion.edgar_client import _FilingMeta
 from sec_10k_agent.ingestion.models import Filing
 from sec_10k_agent.ingestion.xbrl import XBRLExtractor, extract_all_cached
 
-
 #Fake backend 
 
 

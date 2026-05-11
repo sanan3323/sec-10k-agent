@@ -1,8 +1,9 @@
-import pandas as pd
-import numpy as np
-from sqlalchemy import create_engine, text
-from pgvector.sqlalchemy import Vector
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from pgvector.sqlalchemy import Vector
+from sqlalchemy import create_engine, text
 
 DB_URL = "postgresql+psycopg://postgres:postgres@localhost:5432/sec10k"
 
