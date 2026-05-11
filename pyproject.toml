@@ -42,9 +42,7 @@ vector = [
     "pgvector>=0.3.6",
     "sqlalchemy>=2.0",
     "numpy<2.3",
-    "fastembed=0.8.0
-#"sentence-transformers>=2.7.0",
-#"torch>=2.2.2"              
+    "fastembed=0.8.0"            
 ]
 
 # Phase 3+: LLM clients.

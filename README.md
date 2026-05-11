@@ -3,6 +3,7 @@
 A RAG agent for SEC 10-K filings. Multi-hop questions, every claim cited, evals run in CI.
 
 **Status:** Phase 1 ingestion done. 3,761 chunks across 15 filings (AAPL, NVDA, JPM × FY2021–2025). Phase 1c (XBRL with full dimensional capture) up next.
+**Status:** Phase 2 done. 3,761 chunks embedded (BGE-large, 1024-dim) and indexed in Postgres + pgvector with HNSW. Retrieval works end-to-end. Phase 1c (XBRL dimensional capture) is partial; see Known limitations. Phase 3 (RAG MVP) is next.
 
 ---
 
@@ -15,7 +16,9 @@ Answers questions about US public-company 10-K filings. Examples in current scop
 - *What does JPMorgan say about credit risk in their most recent filing?*
 - *What was Apple's Greater China revenue in FY2024?* (XBRL lookup, not embedding search)
 
+
 These need multi-hop retrieval, time awareness, and exact citations. Naive RAG misses on all three.
+Built as a portfolio project to demonstrate production-grade RAG patterns over real regulated filings. Not for use in investment decisions.
 
 ## Why this project
 
@@ -124,12 +127,12 @@ Detail in [docs/architecture.md](docs/architecture.md). Decision history in [doc
 | 0 | done | Repo, scope, architecture, ADRs | This README + a launch post |
 | 1a | done | EDGAR client (download + cache + retry + throttle) | `data/raw/` populated |
 | 1b | done | Section parser + chunker (no overlap, prev/next chain) | `data/processed/chunks.parquet` (3,761 rows) |
-| 1c | next | XBRL extractor with dimensions | `data/processed/xbrl.parquet` |
-| 2 | pending | pgvector indexing + filtered retrieval | Sub-500ms filtered search |
-| 3 | pending | Single-hop RAG MVP with forced citations | **Blog post #1**: section-aware chunking |
+| 1c | partial | XBRL extractor with dimensions | `xbrl.parquet` exists; AAPL Greater China acceptance test unresolved — see [Known limitations](#known-limitations) |
+| 2 | done | pgvector indexing + filtered retrieval | 3,761 chunks with 1024-dim BGE embeddings; HNSW + btree indexes; retrieval verified end-to-end |
+| 3 | next | Single-hop RAG MVP + Streamlit UI with retrieval trace | **Blog post #1**: Section-Aware Chunking Without Overlap |
 | 4 | pending | Eval harness: 100+ questions, RAGAS, Gemini judge, in CI | Baseline numbers |
 | 5 | pending | Hybrid retrieval + reranking | **Blog post #2**: faithfulness lift |
-| 6 | pending | Agent: pick framework, build router + decomposition + multi-hop | Multi-hop eval bucket |
+| 6 | pending | Agent: pick framework, router, decomposition, multi-hop | Multi-hop eval bucket |
 | 7 | pending | Production: deploy, observability, caching, cost tracking | Live demo |
 | 8 | pending | Launch writeup | **Blog post #3** |
 
@@ -208,6 +211,7 @@ After all three, `data/processed/chunks.parquet` has 3,761 rows. Each chunk carr
 - **NVDA Item 8** is similarly external. Same fix path.
 - **Items 1B, 4, 6, 9, 11, 14, 16** are routinely missing or marked "Reserved" in real filings — that's normal SEC behavior, not a parser bug. The parser flags missing items in its `notes` field on the ParsedFiling intermediate.
 - **Item 1C (Cybersecurity)** only appears for fiscal years ending after Dec 15, 2023, per SEC rule. Earlier filings legitimately don't have it.
+- **XBRL dimensional capture is partial.** The XBRL extractor runs and produces `data/processed/xbrl.parquet` with structured facts, but the AAPL Greater China acceptance test from the architecture doc still returns 0 rows. Two root causes: (a) pandas-to-parquet round-trip pollutes dict columns with None values across the union of all axes, and (b) we have not yet identified Apple's actual geographic member name (`country:CN` was a guess). To be resolved before Phase 4 evals include any XBRL-dependent questions.
 
 ## Rules of thumb
 
