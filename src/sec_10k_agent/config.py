@@ -61,6 +61,10 @@ class Settings(BaseSettings):
     openrouter_api_key: str | None = None
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     openrouter_model: str = "openai/gpt-4o-mini"
+    # Judge model reachable via OpenRouter. Kept a different family from the
+    # generator (ADR-003: avoid self-judge bias) — Gemini vs the GPT/Grok
+    # generator. Used by the Phase 4 eval judge when routing through OpenRouter.
+    openrouter_judge_model: str = "google/gemini-2.5-flash"
 
     # Per-request generation timeout. Grok answers in seconds; a local Ollama
     # model on CPU can take minutes, so the default is generous. Bounds hangs.
