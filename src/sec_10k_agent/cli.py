@@ -138,8 +138,7 @@ def chunk(
     use_word_count: bool = typer.Option(
         False,
         "--word-count",
-        help="Use word-count token counter (fast, no model download). "
-        "Default: BGE tokenizer.",
+        help="Use word-count token counter (fast, no model download). Default: BGE tokenizer.",
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
@@ -177,8 +176,7 @@ def chunk(
         chunks = chunker.chunk(parsed)
         all_rows.extend(c.model_dump() for c in chunks)
         typer.echo(
-            f"  OK   {parsed.filing.ticker} FY{parsed.filing.fiscal_year}  "
-            f"chunks={len(chunks)}"
+            f"  OK   {parsed.filing.ticker} FY{parsed.filing.fiscal_year}  chunks={len(chunks)}"
         )
 
     if not all_rows:
@@ -220,9 +218,7 @@ def xbrl(
         raw_dir=settings.raw_dir,
         processed_dir=settings.processed_dir,
     )
-    typer.echo(
-        f"\nDone. filings={n_filings}  facts={n_facts}  failed={len(failures)}"
-    )
+    typer.echo(f"\nDone. filings={n_filings}  facts={n_facts}  failed={len(failures)}")
     for accession, msg in failures:
         typer.echo(f"  FAIL  {accession}: {msg}", err=True)
     if failures:

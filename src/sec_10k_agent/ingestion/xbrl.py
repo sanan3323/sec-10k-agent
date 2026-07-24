@@ -58,8 +58,9 @@ class XBRLExtractor:
         return out
 
 
-#Coercion
-    
+# Coercion
+
+
 def _coerce(raw: dict, filing: Filing) -> XBRLFact | None:
     """Convert one raw fact dict to an XBRLFact, or None if it can't be
     turned into a numeric, dated fact.
@@ -106,7 +107,7 @@ def _parse_date(s: object) -> date | None:
         return None
 
 
-#CLI helper
+# CLI helper
 
 
 def extract_all_cached(
@@ -140,9 +141,7 @@ def extract_all_cached(
             facts = extractor.extract(filing)
             all_facts.extend(f.model_dump(mode="json") for f in facts)
             n_filings += 1
-            logger.info(
-                "  OK  %s FY%s  facts=%d", filing.ticker, filing.fiscal_year, len(facts)
-            )
+            logger.info("  OK  %s FY%s  facts=%d", filing.ticker, filing.fiscal_year, len(facts))
         except Exception as exc:
             failures.append((filing.accession_number, str(exc)))
 
@@ -157,9 +156,17 @@ def extract_all_cached(
         # Write an empty file so downstream consumers always find a parquet.
         pd.DataFrame(
             columns=[
-                "cik", "ticker", "fiscal_year", "accession_number",
-                "concept", "value", "unit", "period_start", "period_end",
-                "context_id", "dimensions",
+                "cik",
+                "ticker",
+                "fiscal_year",
+                "accession_number",
+                "concept",
+                "value",
+                "unit",
+                "period_start",
+                "period_end",
+                "context_id",
+                "dimensions",
             ]
         ).to_parquet(out_path, index=False)
 

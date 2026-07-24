@@ -67,6 +67,7 @@ class _EdgartoolsBackend(Protocol):
     def fetch_html(self, accession_number: str) -> str: ...
 
     def fetch_xbrl_facts(self, accession_number: str) -> list[dict]: ...
+
     """Returns a list of raw fact dicts. Each dict has keys:
         concept (str), value (str), unit (str), period_start (str ISO date),
         period_end (str ISO date), context_id (str), dimensions (dict[str,str]).
@@ -156,8 +157,7 @@ class EdgarClient:
         filing = self._read_cache(ticker, fiscal_year)
         if filing is None:
             raise FilingNotFound(
-                f"No cached Filing for {ticker} FY{fiscal_year}. "
-                "Run `sec10k download` first."
+                f"No cached Filing for {ticker} FY{fiscal_year}. Run `sec10k download` first."
             )
 
         cached = self._read_xbrl_cache(ticker, fiscal_year)
@@ -188,7 +188,8 @@ class EdgarClient:
         try:
             import json
 
-            return json.loads(path.read_text(encoding="utf-8"))
+            facts: list[dict] = json.loads(path.read_text(encoding="utf-8"))
+            return facts
         except Exception as exc:
             logger.warning("corrupt xbrl cache for %s FY%s: %s — refetching", ticker, fy, exc)
             return None
@@ -213,18 +214,14 @@ class EdgarClient:
             return None
 
     def _write_metadata(self, ticker: str, fy: int, filing: Filing) -> None:
-        self._meta_path(ticker, fy).write_text(
-            filing.model_dump_json(indent=2), encoding="utf-8"
-        )
+        self._meta_path(ticker, fy).write_text(filing.model_dump_json(indent=2), encoding="utf-8")
 
     # ─── Throttled, retried EDGAR calls ───────────────────────────────────
 
     def _find_filing(self, ticker: str, fiscal_year: int) -> _FilingMeta:
         """Look up the 10-K for `ticker` covering FY `fiscal_year`."""
         filings = self._list_filings(ticker)
-        matches = [
-            f for f in filings if _parse_iso_date(f.period_of_report).year == fiscal_year
-        ]
+        matches = [f for f in filings if _parse_iso_date(f.period_of_report).year == fiscal_year]
         if not matches:
             raise FilingNotFound(
                 f"No 10-K found for {ticker} with period_of_report year == {fiscal_year}. "
@@ -384,7 +381,7 @@ def _df_to_raw_facts(df: object) -> list[dict]:
     for col in df.columns:  # type: ignore[attr-defined]
         if not str(col).startswith("dim_"):
             continue
-        rest = str(col)[len("dim_"):]
+        rest = str(col)[len("dim_") :]
         ns, sep, local = rest.partition("_")
         if not sep or not local:
             continue

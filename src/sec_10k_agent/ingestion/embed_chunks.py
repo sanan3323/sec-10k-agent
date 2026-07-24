@@ -9,32 +9,34 @@ from sqlalchemy import create_engine
 
 DB_URL = "postgresql://postgres:postgres@localhost:5432/sec10k"
 
-def generate_embeddings():
+
+def generate_embeddings() -> None:
     chunks_path = Path("data/processed/chunks.parquet")
     if not chunks_path.exists():
         print("Chunks file not found!")
         return
-    
+
     df = pd.read_parquet(chunks_path)
     print(f"Loaded {len(df)} chunks.")
 
     device = "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"Loading BGE model on {device}...")
-    model = SentenceTransformer('BAAI/bge-large-en-v1.5', device=device)
+    model = SentenceTransformer("BAAI/bge-large-en-v1.5", device=device)
 
     print("Generating vectors (this might take a minute)...")
-    embeddings = model.encode(df['content'].tolist(), show_progress_bar=True)
-    
-    df['embedding'] = embeddings.tolist()
-    
+    embeddings = model.encode(df["content"].tolist(), show_progress_bar=True)
+
+    df["embedding"] = embeddings.tolist()
+
     engine = create_engine(DB_URL)
     print("Uploading to 'text_chunks'")
-    
-    if 'id' in df.columns:
-        df = df.drop(columns=['id'])
-        
-    df.to_sql('text_chunks', engine, if_exists='append', index=False, method='multi', chunksize=200)
+
+    if "id" in df.columns:
+        df = df.drop(columns=["id"])
+
+    df.to_sql("text_chunks", engine, if_exists="append", index=False, method="multi", chunksize=200)
     print("Done")
+
 
 if __name__ == "__main__":
     generate_embeddings()

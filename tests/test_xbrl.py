@@ -21,7 +21,7 @@ from sec_10k_agent.ingestion.edgar_client import _FilingMeta
 from sec_10k_agent.ingestion.models import Filing
 from sec_10k_agent.ingestion.xbrl import XBRLExtractor, extract_all_cached
 
-#Fake backend 
+# Fake backend
 
 
 def _aapl_2024_facts() -> list[dict]:
@@ -127,7 +127,7 @@ class FakeBackend:
         return _aapl_2024_facts()
 
 
-#Fixtures
+# Fixtures
 
 
 @pytest.fixture
@@ -158,7 +158,7 @@ def downloaded_filing(client: EdgarClient) -> Filing:
     return client.get_10k("AAPL", 2024)
 
 
-#XBRL fetch + cache
+# XBRL fetch + cache
 
 
 def test_get_xbrl_facts_caches_to_disk(
@@ -183,12 +183,10 @@ def test_get_xbrl_facts_requires_filing_to_be_downloaded(client: EdgarClient) ->
         client.get_xbrl_facts("AAPL", 2024)
 
 
-#Extractor
+# Extractor
 
 
-def test_extractor_returns_typed_xbrlfacts(
-    client: EdgarClient, downloaded_filing: Filing
-) -> None:
+def test_extractor_returns_typed_xbrlfacts(client: EdgarClient, downloaded_filing: Filing) -> None:
     extractor = XBRLExtractor(client)
     facts = extractor.extract(downloaded_filing)
 
@@ -201,23 +199,16 @@ def test_extractor_returns_typed_xbrlfacts(
         assert fact.fiscal_year == 2024
 
 
-def test_total_revenue_has_empty_dimensions(
-    client: EdgarClient, downloaded_filing: Filing
-) -> None:
+def test_total_revenue_has_empty_dimensions(client: EdgarClient, downloaded_filing: Filing) -> None:
     extractor = XBRLExtractor(client)
     facts = extractor.extract(downloaded_filing)
 
-    totals = [
-        f for f in facts
-        if f.concept == "us-gaap:Revenues" and f.dimensions == {}
-    ]
+    totals = [f for f in facts if f.concept == "us-gaap:Revenues" and f.dimensions == {}]
     assert len(totals) == 1
     assert totals[0].value == Decimal("391035000000")
 
 
-def test_greater_china_acceptance(
-    client: EdgarClient, downloaded_filing: Filing
-) -> None:
+def test_greater_china_acceptance(client: EdgarClient, downloaded_filing: Filing) -> None:
     """Architecture-doc litmus test.
 
     Apple's Greater China revenue must come back as a Revenues fact at
@@ -229,7 +220,8 @@ def test_greater_china_acceptance(
     facts = extractor.extract(downloaded_filing)
 
     matches = [
-        f for f in facts
+        f
+        for f in facts
         if f.concept == "us-gaap:Revenues"
         and f.dimensions.get("srt:StatementGeographicalAxis") == "country:CN"
     ]
@@ -242,9 +234,7 @@ def test_greater_china_acceptance(
     assert matches[0].period_end == date(2024, 9, 28)
 
 
-def test_skips_non_numeric_facts(
-    client: EdgarClient, downloaded_filing: Filing
-) -> None:
+def test_skips_non_numeric_facts(client: EdgarClient, downloaded_filing: Filing) -> None:
     extractor = XBRLExtractor(client)
     facts = extractor.extract(downloaded_filing)
 
@@ -252,9 +242,7 @@ def test_skips_non_numeric_facts(
     assert not any(f.concept == "dei:DocumentType" for f in facts)
 
 
-def test_skips_facts_with_unparseable_dates(
-    client: EdgarClient, downloaded_filing: Filing
-) -> None:
+def test_skips_facts_with_unparseable_dates(client: EdgarClient, downloaded_filing: Filing) -> None:
     extractor = XBRLExtractor(client)
     facts = extractor.extract(downloaded_filing)
 
@@ -273,7 +261,7 @@ def test_balance_sheet_instant_has_equal_start_end(
     assert cash[0].period_start == cash[0].period_end
 
 
-#End-to-end: extract_all_cached → parquet 
+# End-to-end: extract_all_cached → parquet
 
 
 def test_extract_all_cached_writes_parquet(
@@ -283,9 +271,7 @@ def test_extract_all_cached_writes_parquet(
 
     raw_dir = downloaded_filing.raw_html_path.parent
     processed_dir = tmp_path / "processed"
-    n_filings, n_facts, failures = extract_all_cached(
-        client, raw_dir, processed_dir
-    )
+    n_filings, n_facts, failures = extract_all_cached(client, raw_dir, processed_dir)
 
     assert failures == []
     assert n_filings == 1
@@ -300,14 +286,12 @@ def test_extract_all_cached_writes_parquet(
     # this confirms dimensions survive the parquet write.
     china = df[
         (df["concept"] == "us-gaap:Revenues")
-        & df["dimensions"].apply(
-            lambda d: d.get("srt:StatementGeographicalAxis") == "country:CN"
-        )
+        & df["dimensions"].apply(lambda d: d.get("srt:StatementGeographicalAxis") == "country:CN")
     ]
     assert len(china) == 1
 
 
-#DataFrame -> raw facts helper
+# DataFrame -> raw facts helper
 # Tests the function inside the real edgartools adapter that converts
 # `xbrl().facts.to_dataframe()` output into our raw fact dict schema.
 # The DataFrame columns here mirror what edgartools 5.x actually returns.
@@ -386,7 +370,8 @@ def test_df_to_raw_facts_extracts_dimensions() -> None:
 
     # Greater China line came through with the right axis qname.
     china = [
-        f for f in facts
+        f
+        for f in facts
         if f["concept"] == "us-gaap:Revenues"
         and f["dimensions"].get("srt:StatementGeographicalAxis") == "country:CN"
     ]
@@ -396,10 +381,7 @@ def test_df_to_raw_facts_extracts_dimensions() -> None:
     assert china[0]["period_end"] == "2024-09-28"
 
     # Total revenue: no dimensions on a fact with all dim_* columns null.
-    total = [
-        f for f in facts
-        if f["concept"] == "us-gaap:Revenues" and f["dimensions"] == {}
-    ]
+    total = [f for f in facts if f["concept"] == "us-gaap:Revenues" and f["dimensions"] == {}]
     assert len(total) == 1
 
     # Instant period: start and end equal.
@@ -435,6 +417,4 @@ def test_df_to_raw_facts_handles_qname_with_hyphenated_namespace() -> None:
     facts = _df_to_raw_facts(df)
     assert len(facts) == 1
     # The namespace prefix `us-gaap` (with hyphen) must come through intact.
-    assert facts[0]["dimensions"] == {
-        "us-gaap:ProductOrServiceAxis": "us-gaap:IPhoneMember"
-    }
+    assert facts[0]["dimensions"] == {"us-gaap:ProductOrServiceAxis": "us-gaap:IPhoneMember"}

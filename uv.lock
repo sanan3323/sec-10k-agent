@@ -2934,14 +2934,6 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-dev = [
-    { name = "ipykernel" },
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
-]
 eval = [
     { name = "datasets" },
     { name = "ragas" },
@@ -2972,6 +2964,7 @@ vector = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "ipykernel" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -2990,10 +2983,8 @@ requires-dist = [
     { name = "flagembedding", marker = "extra == 'retrieval'", specifier = ">=1.2" },
     { name = "google-genai", marker = "extra == 'llm'", specifier = ">=0.3" },
     { name = "httpx", specifier = ">=0.27" },
-    { name = "ipykernel", marker = "extra == 'dev'", specifier = ">=6.29" },
     { name = "langfuse", marker = "extra == 'prod'", specifier = ">=2.60.0" },
     { name = "lxml", specifier = ">=5.2" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.10" },
     { name = "numpy", marker = "extra == 'vector'", specifier = "<2.3" },
     { name = "onnxruntime", specifier = "==1.19.0" },
     { name = "openai", marker = "extra == 'llm'", specifier = ">=1.30" },
@@ -3006,14 +2997,10 @@ requires-dist = [
     { name = "pyarrow", specifier = ">=16.1" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "pydantic-settings", specifier = ">=2.3" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.2" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=5.0" },
     { name = "python-dotenv", specifier = ">=1.0" },
     { name = "ragas", marker = "extra == 'eval'", specifier = ">=0.1.10" },
     { name = "rank-bm25", marker = "extra == 'retrieval'", specifier = ">=0.2.2" },
     { name = "redis", marker = "extra == 'prod'", specifier = ">=5.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4" },
     { name = "slowapi", marker = "extra == 'prod'", specifier = ">=0.1.9" },
     { name = "sqlalchemy", specifier = ">=2.0.49" },
     { name = "sqlalchemy", marker = "extra == 'vector'", specifier = ">=2.0" },
@@ -3024,10 +3011,11 @@ requires-dist = [
     { name = "typer", specifier = ">=0.12" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'prod'", specifier = ">=0.30" },
 ]
-provides-extras = ["agent", "dev", "eval", "llm", "prod", "retrieval", "vector"]
+provides-extras = ["agent", "eval", "llm", "prod", "retrieval", "vector"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "ipykernel", specifier = ">=6.29" },
     { name = "mypy", specifier = ">=2.0.0" },
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-asyncio", specifier = ">=1.3.0" },

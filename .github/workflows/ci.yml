@@ -22,8 +22,10 @@ jobs:
 
       - name: Install project (with dev extras)
         # uv sync respects uv.lock if present, ensuring CI uses the same
-        # resolved dependencies as the local environment.
-        run: uv sync --extra dev
+        # resolved dependencies as the local environment. The dev dependency
+        # group installs by default; vector + llm extras are needed for the
+        # retrieval and Phase 3 RAG tests.
+        run: uv sync --extra vector --extra llm
 
       - name: Lint (ruff)
         run: uv run ruff check src tests
