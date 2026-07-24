@@ -7,6 +7,7 @@ Subcommands:
     chunk         Chunk parsed filings into data/processed/chunks.parquet.
     xbrl          Extract structured XBRL facts to data/processed/xbrl.parquet.
     ask           Ask a question over the indexed corpus (single-hop RAG).
+    eval          Run the golden-set eval harness and print a scored report.
 """
 
 from __future__ import annotations
@@ -269,6 +270,74 @@ def ask(
     total_tokens = (answer.prompt_tokens or 0) + (answer.completion_tokens or 0)
     if total_tokens:
         typer.echo(f"\n({answer.model}, {total_tokens} tokens)")
+
+
+@app.command("eval")
+def eval_cmd(
+    limit: int = typer.Option(0, "--limit", "-n", help="Run only the first N items (0 = all)."),
+    k: int = typer.Option(5, "--k", "-k", help="Chunks retrieved per question."),
+    bucket: str = typer.Option(
+        "", "--bucket", "-b", help="Filter to one bucket: single_fact | synthesis | temporal."
+    ),
+    no_judge: bool = typer.Option(
+        False, "--no-judge", help="Retrieval metrics only — skip all LLM judge calls (free)."
+    ),
+    no_filters: bool = typer.Option(
+        False, "--no-filters", help="Ignore per-item filters (measure routing-free retrieval)."
+    ),
+    out: str = typer.Option("", "--out", help="Directory to write report.json + report.md into."),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Run the golden-set eval and print a scored report.
+
+    Needs the pgvector corpus and a generator; the judge additionally needs a
+    Gemini/OpenRouter/Ollama backend (or pass --no-judge). Aggregates
+    faithfulness, correctness, and retrieval metrics per bucket.
+    """
+    logging.basicConfig(
+        level=logging.DEBUG if verbose else logging.WARNING,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+    from pathlib import Path
+
+    from sec_10k_agent.eval import build_judge, format_markdown, load_golden_set, run_eval, to_json
+    from sec_10k_agent.eval.runner import ItemResult
+    from sec_10k_agent.rag import RAGPipeline
+
+    items = load_golden_set()
+    if bucket:
+        items = [it for it in items if it.bucket == bucket]
+    if limit > 0:
+        items = items[:limit]
+    if not items:
+        typer.echo("No golden items matched.", err=True)
+        raise typer.Exit(code=1)
+
+    pipeline = RAGPipeline()
+    judge = None if no_judge else build_judge()
+
+    def _progress(i: int, total: int, r: ItemResult) -> None:
+        if r.error:
+            typer.echo(f"  [{i}/{total}] {r.id}  ERROR: {r.error}", err=True)
+            return
+        faith = "—" if r.faithfulness is None else f"{r.faithfulness:.2f}"
+        corr = "—" if r.correctness is None else f"{r.correctness:.2f}"
+        rec = "—" if r.context_recall is None else f"{r.context_recall:.2f}"
+        typer.echo(f"  [{i}/{total}] {r.id:<8} faith={faith} corr={corr} recall={rec}")
+
+    typer.echo(f"Running {len(items)} items (k={k}, judge={not no_judge})…")
+    report = run_eval(
+        items, pipeline, judge, k=k, use_filters=not no_filters, on_progress=_progress
+    )
+
+    typer.echo("\n" + format_markdown(report))
+
+    if out:
+        out_dir = Path(out)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "report.json").write_text(to_json(report), encoding="utf-8")
+        (out_dir / "report.md").write_text(format_markdown(report), encoding="utf-8")
+        typer.echo(f"Wrote report.json + report.md to {out_dir}/")
 
 
 if __name__ == "__main__":
