@@ -212,3 +212,28 @@ The judge runs on a different model family from the generator (ADR-003 — avoid
 - Wanting standardized, externally-comparable metric definitions (RAGAS numbers are citable in a writeup).
 - Needing metrics we don't want to author ourselves (context precision/recall via LLM, answer semantic similarity).
 - The in-house judge proving unstable across model or prompt versions, where RAGAS's calibration would help.
+
+
+## ADR-010 — Reranker: fastembed's ONNX cross-encoder, not FlagEmbedding/bge-reranker-v2-m3
+
+**Status:** Accepted
+**Date:** 2026-07-24
+
+### Context
+
+The tech-stack table named `BAAI/bge-reranker-v2-m3` via `FlagEmbedding` as the Phase 5 reranker. `uv sync --extra retrieval` fails on this machine: `FlagEmbedding` depends on `torch`, and `torch==2.11.0` has no wheel for Intel Mac (`macosx_15_0_x86_64`) — only Linux, `arm64` macOS, and Windows. This is the identical wall ADR-007 already hit with `sentence-transformers` for embeddings.
+
+### Decision
+
+Rerank with fastembed's ONNX cross-encoder (`fastembed.rerank.cross_encoder.TextCrossEncoder`), model `BAAI/bge-reranker-base`. `fastembed` is already a core dependency (used for query/chunk embedding), so this adds no new install surface — just a second, smaller ONNX model download (~1 GB). `bge-reranker-base` is the same BAAI reranker family as `bge-reranker-v2-m3`, one generation back and English-only rather than multilingual, which is a fine trade for an English-only 10-K corpus.
+
+The `retrieval` extra keeps only `rank-bm25` (for the lexical leg); `FlagEmbedding` is dropped entirely rather than kept as an unusable optional path.
+
+### Reasoning
+
+Consistency with ADR-007: this project already has one working precedent for "the PyTorch-based reference implementation doesn't install here, the ONNX fastembed equivalent does, and the output is close enough for retrieval-ranking purposes." Re-deriving that decision for the reranker would just restate ADR-007 with a different model name.
+
+### What would change our mind
+
+- Moving off Intel Mac (GPU inference would make the PyTorch path preferable).
+- A quality gap between `bge-reranker-base` and `bge-reranker-v2-m3` showing up in eval numbers large enough to justify a second-machine dependency for the reranking step only.

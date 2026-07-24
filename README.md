@@ -110,7 +110,7 @@ Detail in [docs/architecture.md](docs/architecture.md). Decision history in [doc
 | Storage | Postgres 16 + pgvector. One DB for vectors, metadata, and XBRL facts. See [ADR-001](docs/design-decisions.md). |
 | Retrieval | Hybrid BM25 + dense (pgvector HNSW) + cross-encoder reranker |
 | Embeddings | `BAAI/bge-large-en-v1.5`, local via `sentence-transformers`. Free, ~1.3 GB. Voyage A/B in Phase 5. |
-| Reranker | `BAAI/bge-reranker-v2-m3` |
+| Reranker | `BAAI/bge-reranker-base` via fastembed (ONNX) — see [ADR-010](docs/design-decisions.md) |
 | Agent framework | Picked in Phase 6. Options: LangGraph, PydanticAI, hand-rolled state machine. See [ADR-002](docs/design-decisions.md). |
 | Generator LLM | Grok via xAI API, accessed through the `openai` SDK with `base_url=https://api.x.ai/v1`. Provider swap is one config value. |
 | Judge LLM | Gemini 2.5 Flash, free tier. Different model family from the generator. See [ADR-003](docs/design-decisions.md). |
