@@ -2,8 +2,7 @@
 
 A RAG agent for SEC 10-K filings. Multi-hop questions, every claim cited, evals run in CI.
 
-**Status:** Phase 1 ingestion done. 3,761 chunks across 15 filings (AAPL, NVDA, JPM × FY2021–2025). Phase 1c (XBRL with full dimensional capture) up next.
-**Status:** Phase 2 done. 3,761 chunks embedded (BGE-large, 1024-dim) and indexed in Postgres + pgvector with HNSW. Retrieval works end-to-end. Phase 1c (XBRL dimensional capture) is partial; see Known limitations. Phase 3 (RAG MVP) is next.
+**Status:** Phase 2 done. 3,761 chunks embedded (BGE-large, 1024-dim) and indexed in Postgres + pgvector with HNSW. Retrieval works end-to-end via the `sec_10k_agent.retrieval` module. Phase 1c (XBRL dimensional capture) is partial; see Known limitations. Phase 3 (RAG MVP) is next.
 
 ---
 
