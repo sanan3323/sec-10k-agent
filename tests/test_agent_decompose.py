@@ -57,6 +57,18 @@ def test_no_decomposition_both_modes_fans_out() -> None:
     assert all(sq.ticker == "AAPL" and sq.fiscal_year == 2024 for sq in subqueries)
 
 
+def test_no_decomposition_structured_xbrl_gets_concept_hint() -> None:
+    plan = _plan(retrieval_modes=["structured_xbrl"], concept_hint="total revenue")
+    subqueries = decompose("q", plan, _ExplodingGenerator())  # type: ignore[arg-type]
+    assert subqueries[0].concept == "total revenue"
+
+
+def test_no_decomposition_semantic_mode_has_no_concept() -> None:
+    plan = _plan(retrieval_modes=["semantic"], concept_hint="total revenue")
+    subqueries = decompose("q", plan, _ExplodingGenerator())  # type: ignore[arg-type]
+    assert subqueries[0].concept is None
+
+
 def test_no_decomposition_no_filters_defaults_to_none() -> None:
     plan = _plan(candidate_filters=CandidateFilters())
     subqueries = decompose("q", plan, _ExplodingGenerator())  # type: ignore[arg-type]

@@ -26,6 +26,7 @@ Given a user question, output ONLY a JSON object with this shape:
   "retrieval_modes": [<"semantic" and/or "structured_xbrl">],
   "is_temporal": <bool>,
   "candidate_filters": {{"tickers": [...], "fiscal_years": [...], "sections": [...]}},
+  "concept_hint": "<short financial-metric phrase, e.g. 'total revenue', or null>",
   "reasoning": "<one sentence>"
 }}
 
@@ -36,6 +37,9 @@ Rules:
   (revenue, a financial metric, a dimensional breakdown like "Greater China revenue").
   Use "semantic" for narrative/risk-factor/strategy questions. Include both if the
   question needs a number AND narrative context.
+- concept_hint: when "structured_xbrl" is a retrieval mode, give a short phrase naming
+  the financial metric the question needs (e.g. "total revenue", "net income",
+  "Greater China revenue"). Null when "structured_xbrl" is not a mode.
 - is_temporal is true for "how has X changed", "since", "evolved", "compared to
   last year", or any question spanning multiple fiscal years.
 - candidate_filters should list every ticker/fiscal_year/section you can infer from
@@ -50,10 +54,12 @@ def route(question: str, generator: Generator) -> RoutingPlan:
     response = generator.complete(ROUTER_SYSTEM_PROMPT, user_prompt, temperature=0.0)
     obj = extract_json_object(response.text)
     filters = CandidateFilters.model_validate(obj.get("candidate_filters") or {})
+    concept_hint = obj.get("concept_hint")
     return RoutingPlan(
         needs_decomposition=bool(obj.get("needs_decomposition", False)),
         retrieval_modes=list(obj.get("retrieval_modes") or ["semantic"]),
         is_temporal=bool(obj.get("is_temporal", False)),
         candidate_filters=filters,
+        concept_hint=str(concept_hint).strip() if concept_hint else None,
         reasoning=str(obj.get("reasoning", "")).strip(),
     )

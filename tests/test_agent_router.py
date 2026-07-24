@@ -83,10 +83,17 @@ def test_route_structured_xbrl_mode() -> None:
       "retrieval_modes": ["structured_xbrl"],
       "is_temporal": false,
       "candidate_filters": {"tickers": ["AAPL"], "fiscal_years": [2024], "sections": []},
+      "concept_hint": "total revenue",
       "reasoning": "asks for a specific revenue figure"
     }"""
     plan = route("What was Apple's total revenue in FY2024?", _FakeGenerator(reply))
     assert plan.retrieval_modes == ["structured_xbrl"]
+    assert plan.concept_hint == "total revenue"
+
+
+def test_route_concept_hint_defaults_none() -> None:
+    plan = route("q", _FakeGenerator('{"needs_decomposition": false}'))
+    assert plan.concept_hint is None
 
 
 def test_route_defaults_missing_fields() -> None:

@@ -33,10 +33,14 @@ Rules:
 - Each subquery's "question" should be a natural, focused restatement for that single
   (ticker, fiscal_year) slice -- not the original multi-entity question verbatim.
 
+If a subquery's mode is "structured_xbrl", also include "concept": a short financial-
+metric phrase for that slice (e.g. "total revenue"). Omit or null it for "semantic".
+
 Output ONLY a JSON object:
 {"subqueries": [
   {"question": "...", "ticker": "...", "fiscal_year": <int or null>,
-   "section": "<code or null>", "mode": "semantic" | "structured_xbrl"}
+   "section": "<code or null>", "concept": "<phrase or null>",
+   "mode": "semantic" | "structured_xbrl"}
 ]}"""
 
 
@@ -52,7 +56,12 @@ def _fan_out_by_mode(question: str, plan: RoutingPlan) -> list[SubQuery]:
     modes = plan.retrieval_modes or ["semantic"]
     return [
         SubQuery(
-            question=question, ticker=ticker, fiscal_year=fiscal_year, section=section, mode=mode
+            question=question,
+            ticker=ticker,
+            fiscal_year=fiscal_year,
+            section=section,
+            concept=plan.concept_hint if mode == "structured_xbrl" else None,
+            mode=mode,
         )
         for mode in modes
     ]

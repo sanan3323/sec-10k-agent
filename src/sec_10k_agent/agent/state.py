@@ -35,17 +35,28 @@ class RoutingPlan(BaseModel):
     retrieval_modes: list[RetrievalMode]
     is_temporal: bool
     candidate_filters: CandidateFilters
+    concept_hint: str | None = Field(
+        None,
+        description=(
+            "Short financial-metric phrase (e.g. 'total revenue') when 'structured_xbrl' is a "
+            "retrieval mode, so the XBRL tool has something to search `concept` for. Null "
+            "otherwise."
+        ),
+    )
     reasoning: str = ""
 
 
 class SubQuery(BaseModel):
     """One decomposed unit of work: a question plus the exact filters and
-    retrieval mode to run it with."""
+    retrieval mode to run it with. `concept` is only meaningful for
+    mode="structured_xbrl" -- it's the search term passed to
+    `lookup_financial_metric`."""
 
     question: str
     ticker: str | None = None
     fiscal_year: int | None = None
     section: str | None = None
+    concept: str | None = None
     mode: RetrievalMode = "semantic"
 
 
