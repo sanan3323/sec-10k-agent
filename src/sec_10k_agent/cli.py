@@ -235,6 +235,11 @@ def ask(
         "", "--section", "-s", help="Restrict to one 10-K item, e.g. 'Item 1A'."
     ),
     k: int = typer.Option(5, "--k", "-k", help="Number of chunks to retrieve."),
+    hybrid: bool = typer.Option(
+        False,
+        "--hybrid/--dense-only",
+        help="Use dense+BM25 fusion with cross-encoder reranking (Phase 5) instead of dense-only.",
+    ),
     show_sources: bool = typer.Option(
         True, "--sources/--no-sources", help="Print the retrieved sources under the answer."
     ),
@@ -244,7 +249,8 @@ def ask(
 
     Requires the pgvector corpus (Phase 2) and a generator: set XAI_API_KEY for
     Grok or OLLAMA_BASE_URL for a local model. Filters map straight onto the
-    retriever's pre-filter.
+    retriever's pre-filter. `--hybrid` adds BM25 lexical search and reranking
+    on top of dense retrieval; it downloads the reranker model on first use.
     """
     logging.basicConfig(
         level=logging.DEBUG if verbose else logging.WARNING,
@@ -252,7 +258,13 @@ def ask(
     )
     from sec_10k_agent.rag import RAGPipeline
 
-    pipeline = RAGPipeline()
+    retriever = None
+    if hybrid:
+        from sec_10k_agent.retrieval import HybridRetriever
+
+        retriever = HybridRetriever()
+
+    pipeline = RAGPipeline(retriever=retriever)
     answer = pipeline.answer(
         question,
         ticker=ticker or None,
@@ -309,6 +321,11 @@ def eval_cmd(
     no_filters: bool = typer.Option(
         False, "--no-filters", help="Ignore per-item filters (measure routing-free retrieval)."
     ),
+    hybrid: bool = typer.Option(
+        False,
+        "--hybrid/--dense-only",
+        help="Retrieve with dense+BM25 fusion and cross-encoder reranking (Phase 5).",
+    ),
     out: str = typer.Option("", "--out", help="Directory to write report.json + report.md into."),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
@@ -316,7 +333,8 @@ def eval_cmd(
 
     Needs the pgvector corpus and a generator; the judge additionally needs a
     Gemini/OpenRouter/Ollama backend (or pass --no-judge). Aggregates
-    faithfulness, correctness, and retrieval metrics per bucket.
+    faithfulness, correctness, and retrieval metrics per bucket. Pass --hybrid
+    to compare against the Phase 5 hybrid retriever instead of dense-only.
     """
     logging.basicConfig(
         level=logging.DEBUG if verbose else logging.WARNING,
@@ -337,7 +355,13 @@ def eval_cmd(
         typer.echo("No golden items matched.", err=True)
         raise typer.Exit(code=1)
 
-    pipeline = RAGPipeline()
+    retriever = None
+    if hybrid:
+        from sec_10k_agent.retrieval import HybridRetriever
+
+        retriever = HybridRetriever()
+
+    pipeline = RAGPipeline(retriever=retriever)
     judge = None if no_judge else build_judge()
 
     def _progress(i: int, total: int, r: ItemResult) -> None:

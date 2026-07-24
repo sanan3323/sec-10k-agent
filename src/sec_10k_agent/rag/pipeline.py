@@ -11,6 +11,7 @@ from __future__ import annotations
 from sec_10k_agent.rag.llm import Generator, build_generator
 from sec_10k_agent.rag.models import Answer
 from sec_10k_agent.rag.prompts import SYSTEM_PROMPT, build_user_prompt, parse_citations
+from sec_10k_agent.retrieval.models import SearchRetriever
 from sec_10k_agent.retrieval.retriever import DEFAULT_K, Retriever
 
 
@@ -19,7 +20,7 @@ class RAGPipeline:
 
     def __init__(
         self,
-        retriever: Retriever | None = None,
+        retriever: SearchRetriever | None = None,
         generator: Generator | None = None,
         k: int = DEFAULT_K,
     ) -> None:

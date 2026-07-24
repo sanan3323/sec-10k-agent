@@ -7,6 +7,8 @@ similarity score for the query that surfaced it.
 
 from __future__ import annotations
 
+from typing import Protocol, runtime_checkable
+
 from pydantic import BaseModel, Field
 
 
@@ -43,3 +45,20 @@ class RetrievedChunk(BaseModel):
         if self.fiscal_year:
             parts.insert(1 if self.ticker else 0, f"FY{self.fiscal_year}")
         return " ".join(parts) or self.chunk_id
+
+
+@runtime_checkable
+class SearchRetriever(Protocol):
+    """Anything that can rank chunks for a query. `Retriever` (dense) and
+    `HybridRetriever` (dense+BM25+rerank) both satisfy this; the RAG pipeline
+    and eval runner depend on the protocol, not a concrete class."""
+
+    def search(
+        self,
+        query: str,
+        *,
+        ticker: str | None = None,
+        fiscal_year: int | None = None,
+        section: str | None = None,
+        k: int = ...,
+    ) -> list[RetrievedChunk]: ...
