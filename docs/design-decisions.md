@@ -181,3 +181,34 @@ Moving to GPU inference (PyTorch's CUDA path is harder to beat). Needing a model
 - Adding a fourth ticker that also incorporates by reference (typical for big banks).
 - An eval bucket dedicated to JPM that the system can't answer at all without Exhibit 13.
 - A decision to expand v1 scope to include other Big Four banks (BAC, WFC, C), all of which use the same incorporation pattern.
+
+
+## ADR-009 — Eval metrics: a versioned LLM-judge, not the RAGAS library (for now)
+
+**Status:** Accepted
+**Date:** 2026-07-24
+
+### Context
+
+Phase 4 needs to score answer quality (faithfulness, correctness) over the golden set, in addition to the deterministic retrieval metrics. The roadmap named RAGAS as the tool. In practice RAGAS 0.2+ pulls a heavy LangChain dependency graph, is version-fragile, and wraps its metrics in abstractions that make the actual judge prompt hard to see, pin, or diff.
+
+### Decision
+
+Implement the answer-quality metrics as a small in-house LLM-as-judge (`eval/judge.py`) with explicit, versioned prompts:
+
+- **faithfulness** — is every claim in the answer grounded in the retrieved context? (needs no ground truth)
+- **correctness** — does the answer match the reference `answer` (single_fact) or satisfy the `answer_rubric` (synthesis/temporal)?
+
+The judge runs on a different model family from the generator (ADR-003 — avoid self-judge bias): Gemini via the Gemini API or OpenRouter, falling back to Ollama. `ragas` and `datasets` remain declared under the `eval` optional-dependency group so the library metrics can be run as a cross-check, but they are not on the critical path.
+
+### Reasoning
+
+- Transparency: the exact judge prompt is in-repo and versioned (`PROMPT_VERSION`), so a score change can be attributed to a prompt edit vs a system change.
+- Fit: we need custom handling RAGAS doesn't give cleanly — negative-control abstention scoring, and faithfulness that treats "the filings don't say" as faithful when the context indeed lacks it.
+- Weight: no LangChain in the graph; the judge reuses the same OpenAI-compatible client the generator already uses.
+
+### What would change our mind
+
+- Wanting standardized, externally-comparable metric definitions (RAGAS numbers are citable in a writeup).
+- Needing metrics we don't want to author ourselves (context precision/recall via LLM, answer semantic similarity).
+- The in-house judge proving unstable across model or prompt versions, where RAGAS's calibration would help.

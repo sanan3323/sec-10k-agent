@@ -1,0 +1,103 @@
+name: Eval
+
+# The scored eval needs a live corpus and (optionally) an LLM, so it is not run
+# on every PR. It runs weekly and on manual dispatch. By default it runs the
+# deterministic retrieval metrics only (free, no secrets); pass judged=true with
+# an OPENROUTER_API_KEY secret set to also score faithfulness/correctness.
+on:
+  workflow_dispatch:
+    inputs:
+      judged:
+        description: "Run the LLM judge (needs OPENROUTER_API_KEY secret)"
+        type: boolean
+        default: false
+      limit:
+        description: "Max golden items (0 = all)"
+        default: "0"
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sec10k
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # Provide a real contact via the SEC_USER_AGENT secret to be a good EDGAR
+      # citizen; the fallback keeps manual runs working.
+      SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT || 'sec-10k-agent-ci ci@example.com' }}
+      POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/sec10k
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Pin Python
+        run: uv python install 3.12
+
+      - name: Install (vector + llm + eval extras)
+        run: uv sync --extra vector --extra llm --extra eval
+
+      # The BGE embedding model (~1.3 GB) is downloaded on first use; cache it.
+      - name: Cache embedding model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache
+          key: fastembed-bge-large-en-v1.5
+
+      - name: Apply DB schema
+        # Run scripts/postgres-init.sql minus the `CREATE DATABASE langfuse`
+        # line (not needed for eval and can't run inside a transaction).
+        run: |
+          uv run python - <<'PY'
+          import re
+          from sqlalchemy import create_engine, text
+          sql = open("scripts/postgres-init.sql").read()
+          sql = re.sub(r"(?im)^\s*CREATE DATABASE langfuse;\s*$", "", sql)
+          engine = create_engine("postgresql://postgres:postgres@localhost:5432/sec10k")
+          with engine.begin() as conn:
+              for stmt in filter(str.strip, sql.split(";")):
+                  conn.execute(text(stmt))
+          print("schema applied")
+          PY
+
+      - name: Build corpus (download -> parse -> chunk -> index)
+        run: |
+          uv run sec10k download
+          uv run sec10k parse
+          uv run sec10k chunk
+          uv run sec10k index
+
+      - name: Run eval
+        run: |
+          ARGS="--out eval-out"
+          if [ "${{ inputs.judged }}" = "true" ] && [ -n "$OPENROUTER_API_KEY" ]; then
+            echo "Running judged eval."
+          else
+            echo "Running retrieval-only eval (no judge)."
+            ARGS="$ARGS --no-judge"
+          fi
+          if [ -n "${{ inputs.limit }}" ] && [ "${{ inputs.limit }}" != "0" ]; then
+            ARGS="$ARGS --limit ${{ inputs.limit }}"
+          fi
+          uv run sec10k eval $ARGS
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: eval-out/

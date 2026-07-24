@@ -2,7 +2,7 @@
 
 A RAG agent for SEC 10-K filings. Multi-hop questions, every claim cited, evals run in CI.
 
-**Status:** Phase 3 done. Single-hop RAG MVP answers questions end-to-end with cited sources — `sec10k ask` on the CLI and a Streamlit UI with a full retrieval trace. Generation runs on Grok (xAI) or a local Ollama model; provider is a config switch. Phase 2 (pgvector retrieval) and Phase 1 (ingestion) are done; Phase 1c (XBRL dimensional capture) is partial; see Known limitations. Phase 4 (eval harness) is next.
+**Status:** Phase 4 done. The eval harness scores the golden set on retrieval metrics (context recall, hit@k, MRR) plus an LLM-as-judge for faithfulness and correctness, via `sec10k eval`. First baseline on the 26-item seed set: overall faithfulness 0.89, correctness 0.73, retrieval recall 92% (single-hop is strong on single-fact/synthesis at 100% recall; temporal lags at 67% — the gap Phases 5-6 target). Phase 3 (RAG MVP: `sec10k ask` + Streamlit), Phase 2 (pgvector retrieval), and Phase 1 (ingestion) are done. Generation runs on Grok, OpenRouter, or local Ollama — a config switch. Phase 1c (XBRL) is partial; see Known limitations. Phase 5 (hybrid retrieval + reranking) is next.
 
 ---
 
@@ -129,7 +129,7 @@ Detail in [docs/architecture.md](docs/architecture.md). Decision history in [doc
 | 1c | partial | XBRL extractor with dimensions | `xbrl.parquet` exists; AAPL Greater China acceptance test unresolved — see [Known limitations](#known-limitations) |
 | 2 | done | pgvector indexing + filtered retrieval | 3,761 chunks with 1024-dim BGE embeddings; HNSW + btree indexes; retrieval verified end-to-end |
 | 3 | done | Single-hop RAG MVP + Streamlit UI with retrieval trace | `sec10k ask` + Streamlit; cited answers via Grok or local Ollama. **Blog post #1**: Section-Aware Chunking Without Overlap |
-| 4 | pending | Eval harness: 100+ questions, RAGAS, Gemini judge, in CI | Baseline numbers |
+| 4 | done | Eval harness: golden set, retrieval metrics + LLM-judge (faithfulness/correctness), weekly CI | Baseline: faith 0.89 / correct 0.73 / recall 92% on the 26-item seed. See [ADR-009](docs/design-decisions.md) on judge-vs-RAGAS |
 | 5 | pending | Hybrid retrieval + reranking | **Blog post #2**: faithfulness lift |
 | 6 | pending | Agent: pick framework, router, decomposition, multi-hop | Multi-hop eval bucket |
 | 7 | pending | Production: deploy, observability, caching, cost tracking | Live demo |
@@ -207,18 +207,28 @@ After all three, `data/processed/chunks.parquet` has 3,761 rows. Each chunk carr
 Then index the chunks into pgvector and ask questions (Phase 2 + 3):
 
 ```bash
-# One-time: load the embedded chunks into Postgres (docker compose must be up)
-uv run python -m sec_10k_agent.ingestion.load_vectors
+# One-time: embed the chunks and load them into Postgres (docker compose must be up)
+uv run sec10k index
 
-# Ask a question. Needs a generator: set XAI_API_KEY (Grok) or OLLAMA_BASE_URL
-# (local, $0) in .env. Filters map onto the retriever's pre-filter.
+# Ask a question. Needs a generator: set XAI_API_KEY (Grok), OPENROUTER_API_KEY,
+# or OLLAMA_BASE_URL (local, $0) in .env. Filters map onto the retriever's pre-filter.
 uv run sec10k ask "What supply chain risks does Apple disclose?" --ticker AAPL
 
 # Or launch the Streamlit UI (question box + retrieval trace)
 uv run streamlit run src/sec_10k_agent/api/streamlit_app.py
 ```
 
-Every answer cites the sources it used (`[1]`, `[2]`, …), and the UI shows which retrieved chunks were cited versus merely retrieved. Grok answers in seconds; a local Ollama model on CPU can take minutes per query.
+Every answer cites the sources it used (`[1]`, `[2]`, …), and the UI shows which retrieved chunks were cited versus merely retrieved. Grok/OpenRouter answer in seconds; a local Ollama model on CPU can take minutes per query.
+
+Score the whole golden set (Phase 4):
+
+```bash
+# Retrieval metrics only (free, no LLM): context recall, hit@k, MRR
+uv run sec10k eval --no-judge
+
+# Full run adds LLM-judged faithfulness + correctness (needs a generator + judge key)
+uv run sec10k eval --out data/eval/baselines/latest
+```
 
 ## Known limitations
 

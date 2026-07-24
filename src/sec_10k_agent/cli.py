@@ -7,6 +7,7 @@ Subcommands:
     chunk         Chunk parsed filings into data/processed/chunks.parquet.
     xbrl          Extract structured XBRL facts to data/processed/xbrl.parquet.
     ask           Ask a question over the indexed corpus (single-hop RAG).
+    index         Embed chunks.parquet and load them into pgvector.
     eval          Run the golden-set eval harness and print a scored report.
 """
 
@@ -270,6 +271,29 @@ def ask(
     total_tokens = (answer.prompt_tokens or 0) + (answer.completion_tokens or 0)
     if total_tokens:
         typer.echo(f"\n({answer.model}, {total_tokens} tokens)")
+
+
+@app.command()
+def index(
+    truncate: bool = typer.Option(
+        True, "--truncate/--append", help="Clear text_chunks before loading (idempotent)."
+    ),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Embed data/processed/chunks.parquet and load it into pgvector.
+
+    Requires Postgres to be up (docker compose) with the schema from
+    scripts/postgres-init.sql. Downloads the BGE embedding model on first run.
+    """
+    logging.basicConfig(
+        level=logging.DEBUG if verbose else logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+    from sec_10k_agent.ingestion.indexer import index_chunks
+
+    typer.echo("Embedding chunks and loading into pgvector…")
+    count = index_chunks(truncate=truncate)
+    typer.echo(f"Done. {count} rows live in text_chunks.")
 
 
 @app.command("eval")
