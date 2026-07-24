@@ -40,12 +40,31 @@ The decision is reversible. The retrieval interface is built against a `VectorSt
 
 ---
 
-## ADR-002 — Agent framework: deferred to Phase 6
+## ADR-002 — Agent framework: hand-rolled state machine
 
-**Status:** Pending
-**Date:** TBD
+**Status:** Accepted
+**Date:** 2026-07-24
 
-The agent layer (Phase 6) will be evaluated against three options: LangGraph, PydanticAI, and a hand-rolled state machine. Decision criteria, candidates' tradeoffs, and the final pick will be written here when Phase 6 begins, not before. Pre-committing now would defeat the point of the evaluation.
+### Context
+
+Three options were on the table: LangGraph, PydanticAI, and a hand-rolled state machine. The architecture doc's node graph (`route -> decompose -> plan_retrievals -> retrieve -> synthesize -> verify_citations -> finalize`, with one conditional retry edge from `verify_citations` back to `retrieve`) was fully specified before this decision, which matters: it's a short linear pipeline with a single bounded retry loop, not an arbitrary DAG with branching or cycles a graph engine's execution model would meaningfully simplify.
+
+### Decision
+
+Hand-rolled: each node is a plain typed function (`agent/router.py`, `agent/decompose.py`, `agent/retrieve.py`, `agent/synthesize.py`, `agent/verify.py`, `agent/finalize.py`), composed by an explicit `agent/orchestrator.py` that runs the sequence and implements the one retry edge as a Python `if`. `AgentState` (`agent/state.py`) is a Pydantic model threaded through, matching every other typed boundary in this codebase (`Settings`, `Chunk`, `Answer`, `GoldenItem`, ...).
+
+### Reasoning
+
+- **Precedent.** Every prior "framework vs. lean custom" decision in this project chose lean: `fastembed` over `sentence-transformers` (ADR-007), an in-house judge over the RAGAS library (ADR-009), fastembed's ONNX reranker over FlagEmbedding (ADR-010). A LangGraph or PydanticAI dependency for a 6-node linear pipeline with one retry edge would be the first time this project reached for a framework where a function call would do.
+- **No new execution model to debug.** A hand-rolled pipeline's stack trace *is* the debugging story. A graph framework adds its own scheduling/state-persistence layer between "my code" and "the error," which pays off on graphs with real branching/parallelism — this one doesn't have that shape.
+- **Already-built primitives compose directly.** `Generator` (rag/llm.py), `SearchRetriever` (retrieval/models.py), and the judge's structured-JSON-from-LLM pattern (eval/judge.py) already give every node what it needs; a framework would sit on top of them, not replace them.
+- **Full test control.** Every node takes its dependencies as constructor/function arguments (generator, retriever, tool), so tests inject fakes exactly like the rest of the codebase (`Retriever(embedder=...)`, `Judge(generator)`) — no framework test harness to learn.
+
+### What would change our mind
+
+- The node graph gaining real branching or parallel fan-out (e.g., N sub-queries retrieved concurrently) where a scheduler earns its keep over manual `asyncio.gather`.
+- Wanting a hosted trace/replay UI a framework provides out of the box, instead of the existing Langfuse integration.
+- The hand-rolled version's retry/state logic growing past what stays readable as plain functions.
 
 ---
 
