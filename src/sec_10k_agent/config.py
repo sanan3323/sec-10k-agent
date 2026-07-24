@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     xai_base_url: str = "https://api.x.ai/v1"
     xai_model: str = "grok-4.3"  # update when needed
 
+    # Per-request generation timeout. Grok answers in seconds; a local Ollama
+    # model on CPU can take minutes, so the default is generous. Bounds hangs.
+    llm_timeout_seconds: float = 600.0
+
     # LLM-as-judge for Phase 4 evals. Different model family from the generator
     # to avoid self-judge bias. Gemini Flash has a free tier sized for our
     # eval workloads. Swap to Ollama by leaving this blank and setting the
@@ -61,9 +65,11 @@ class Settings(BaseSettings):
     gemini_api_key: str | None = None
     gemini_judge_model: str = "gemini-2.5-flash"
 
-    # Optional Ollama fallback for the judge (e.g. running llama-3 locally).
+    # Optional Ollama fallback (e.g. running a local model). Used as the judge
+    # in Phase 4, and as a $0 generator fallback when no XAI_API_KEY is set.
     ollama_base_url: str | None = None
     ollama_judge_model: str = "llama3.1:8b"
+    ollama_model: str = "llama3.1:8b"  # generator model when falling back to Ollama
 
     # Postgres + pgvector
     # One database for both vectors and metadata. See ADR-001.

@@ -2,7 +2,7 @@
 
 A RAG agent for SEC 10-K filings. Multi-hop questions, every claim cited, evals run in CI.
 
-**Status:** Phase 2 done. 3,761 chunks embedded (BGE-large, 1024-dim) and indexed in Postgres + pgvector with HNSW. Retrieval works end-to-end via the `sec_10k_agent.retrieval` module. Phase 1c (XBRL dimensional capture) is partial; see Known limitations. Phase 3 (RAG MVP) is next.
+**Status:** Phase 3 done. Single-hop RAG MVP answers questions end-to-end with cited sources — `sec10k ask` on the CLI and a Streamlit UI with a full retrieval trace. Generation runs on Grok (xAI) or a local Ollama model; provider is a config switch. Phase 2 (pgvector retrieval) and Phase 1 (ingestion) are done; Phase 1c (XBRL dimensional capture) is partial; see Known limitations. Phase 4 (eval harness) is next.
 
 ---
 
@@ -128,7 +128,7 @@ Detail in [docs/architecture.md](docs/architecture.md). Decision history in [doc
 | 1b | done | Section parser + chunker (no overlap, prev/next chain) | `data/processed/chunks.parquet` (3,761 rows) |
 | 1c | partial | XBRL extractor with dimensions | `xbrl.parquet` exists; AAPL Greater China acceptance test unresolved — see [Known limitations](#known-limitations) |
 | 2 | done | pgvector indexing + filtered retrieval | 3,761 chunks with 1024-dim BGE embeddings; HNSW + btree indexes; retrieval verified end-to-end |
-| 3 | next | Single-hop RAG MVP + Streamlit UI with retrieval trace | **Blog post #1**: Section-Aware Chunking Without Overlap |
+| 3 | done | Single-hop RAG MVP + Streamlit UI with retrieval trace | `sec10k ask` + Streamlit; cited answers via Grok or local Ollama. **Blog post #1**: Section-Aware Chunking Without Overlap |
 | 4 | pending | Eval harness: 100+ questions, RAGAS, Gemini judge, in CI | Baseline numbers |
 | 5 | pending | Hybrid retrieval + reranking | **Blog post #2**: faithfulness lift |
 | 6 | pending | Agent: pick framework, router, decomposition, multi-hop | Multi-hop eval bucket |
@@ -203,6 +203,22 @@ uv run sec10k chunk
 ```
 
 After all three, `data/processed/chunks.parquet` has 3,761 rows. Each chunk carries `chunk_id`, `ticker`, `fiscal_year`, `section`, `text`, `token_count`, plus `prev_chunk_id` / `next_chunk_id` for retrieval-time context expansion.
+
+Then index the chunks into pgvector and ask questions (Phase 2 + 3):
+
+```bash
+# One-time: load the embedded chunks into Postgres (docker compose must be up)
+uv run python -m sec_10k_agent.ingestion.load_vectors
+
+# Ask a question. Needs a generator: set XAI_API_KEY (Grok) or OLLAMA_BASE_URL
+# (local, $0) in .env. Filters map onto the retriever's pre-filter.
+uv run sec10k ask "What supply chain risks does Apple disclose?" --ticker AAPL
+
+# Or launch the Streamlit UI (question box + retrieval trace)
+uv run streamlit run src/sec_10k_agent/api/streamlit_app.py
+```
+
+Every answer cites the sources it used (`[1]`, `[2]`, …), and the UI shows which retrieved chunks were cited versus merely retrieved. Grok answers in seconds; a local Ollama model on CPU can take minutes per query.
 
 ## Known limitations
 

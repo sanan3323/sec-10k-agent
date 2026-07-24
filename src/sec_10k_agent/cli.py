@@ -6,8 +6,7 @@ Subcommands:
     parse         Parse cached HTML into ParsedFiling intermediates.
     chunk         Chunk parsed filings into data/processed/chunks.parquet.
     xbrl          Extract structured XBRL facts to data/processed/xbrl.parquet.
-
-Phase 2 adds `index`.
+    ask           Ask a question over the indexed corpus (single-hop RAG).
 """
 
 from __future__ import annotations
@@ -223,6 +222,53 @@ def xbrl(
         typer.echo(f"  FAIL  {accession}: {msg}", err=True)
     if failures:
         raise typer.Exit(code=1)
+
+
+@app.command()
+def ask(
+    question: str = typer.Argument(..., help="The question to answer over the 10-K corpus."),
+    ticker: str = typer.Option("", "--ticker", "-t", help="Restrict to one ticker, e.g. AAPL."),
+    year: int = typer.Option(0, "--year", "-y", help="Restrict to one fiscal year, e.g. 2024."),
+    section: str = typer.Option(
+        "", "--section", "-s", help="Restrict to one 10-K item, e.g. 'Item 1A'."
+    ),
+    k: int = typer.Option(5, "--k", "-k", help="Number of chunks to retrieve."),
+    show_sources: bool = typer.Option(
+        True, "--sources/--no-sources", help="Print the retrieved sources under the answer."
+    ),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Answer a question over the indexed corpus with cited sources.
+
+    Requires the pgvector corpus (Phase 2) and a generator: set XAI_API_KEY for
+    Grok or OLLAMA_BASE_URL for a local model. Filters map straight onto the
+    retriever's pre-filter.
+    """
+    logging.basicConfig(
+        level=logging.DEBUG if verbose else logging.WARNING,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+    from sec_10k_agent.rag import RAGPipeline
+
+    pipeline = RAGPipeline()
+    answer = pipeline.answer(
+        question,
+        ticker=ticker or None,
+        fiscal_year=year or None,
+        section=section or None,
+        k=k,
+    )
+
+    typer.echo("\n" + answer.text.strip() + "\n")
+    if show_sources and answer.sources:
+        cited = set(answer.cited_indices)
+        typer.echo("Sources:")
+        for i, src in enumerate(answer.sources, start=1):
+            mark = "*" if i in cited else " "
+            typer.echo(f"  [{i}]{mark} {src.citation()}  (score={src.score:.3f})")
+    total_tokens = (answer.prompt_tokens or 0) + (answer.completion_tokens or 0)
+    if total_tokens:
+        typer.echo(f"\n({answer.model}, {total_tokens} tokens)")
 
 
 if __name__ == "__main__":
