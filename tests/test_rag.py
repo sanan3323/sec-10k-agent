@@ -138,6 +138,7 @@ def _settings(**over: object) -> Settings:
     base: dict[str, object] = {
         "sec_user_agent": "Test User test@example.com",
         "xai_api_key": None,
+        "openrouter_api_key": None,
         "ollama_base_url": None,
     }
     base.update(over)
@@ -146,6 +147,21 @@ def _settings(**over: object) -> Settings:
 
 def test_build_generator_prefers_grok_when_key_present() -> None:
     gen = build_generator(_settings(xai_api_key="xai-abc", xai_model="grok-4.3"))
+    assert gen._model == "grok-4.3"  # type: ignore[attr-defined]
+
+
+def test_build_generator_uses_openrouter_when_only_its_key_set() -> None:
+    gen = build_generator(
+        _settings(openrouter_api_key="or-abc", openrouter_model="x-ai/grok-2-1212")
+    )
+    assert gen._model == "x-ai/grok-2-1212"  # type: ignore[attr-defined]
+
+
+def test_build_generator_grok_beats_openrouter() -> None:
+    # Both set -> Grok wins by precedence.
+    gen = build_generator(
+        _settings(xai_api_key="xai-abc", xai_model="grok-4.3", openrouter_api_key="or-abc")
+    )
     assert gen._model == "grok-4.3"  # type: ignore[attr-defined]
 
 

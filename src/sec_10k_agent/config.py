@@ -54,6 +54,14 @@ class Settings(BaseSettings):
     xai_base_url: str = "https://api.x.ai/v1"
     xai_model: str = "grok-4.3"  # update when needed
 
+    # OpenRouter — one key, many models, also OpenAI-SDK-compatible. A handy way
+    # to reach Grok/GPT/Gemini/OSS models (including free tiers) without a
+    # separate account per provider. `openrouter_model` is a vendor/model id,
+    # e.g. "x-ai/grok-2-1212" or "meta-llama/llama-3.1-8b-instruct:free".
+    openrouter_api_key: str | None = None
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
+    openrouter_model: str = "openai/gpt-4o-mini"
+
     # Per-request generation timeout. Grok answers in seconds; a local Ollama
     # model on CPU can take minutes, so the default is generous. Bounds hangs.
     llm_timeout_seconds: float = 600.0

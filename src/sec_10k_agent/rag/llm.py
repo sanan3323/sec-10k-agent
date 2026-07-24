@@ -1,9 +1,9 @@
 """Text generation backend.
 
-Both xAI Grok and a local Ollama server speak the OpenAI chat-completions API,
-so a single OpenAI-SDK client covers both — only base_url, model, and key
-differ. That keeps "which provider generates" a config decision, not a code
-change (see ADR on provider swap).
+xAI Grok, OpenRouter, and a local Ollama server all speak the OpenAI
+chat-completions API, so a single OpenAI-SDK client covers all three — only
+base_url, model, and key differ. That keeps "which provider generates" a config
+decision, not a code change (see ADR on provider swap).
 
 The pipeline depends on the small `Generator` protocol, not on this concrete
 class, so tests inject a fake and never touch the network.
@@ -68,9 +68,9 @@ class OpenAICompatGenerator:
 def build_generator(settings: Settings | None = None) -> OpenAICompatGenerator:
     """Construct the generator from config.
 
-    Prefers xAI Grok when `xai_api_key` is set; otherwise falls back to a local
-    Ollama server if `ollama_base_url` is configured. Raises if neither is
-    available so the failure is loud rather than a confusing API error.
+    Precedence: xAI Grok (`xai_api_key`) -> OpenRouter (`openrouter_api_key`)
+    -> local Ollama (`ollama_base_url`). Raises if none is available so the
+    failure is loud rather than a confusing API error.
     """
     settings = settings or get_settings()
     if settings.xai_api_key:
@@ -78,6 +78,13 @@ def build_generator(settings: Settings | None = None) -> OpenAICompatGenerator:
             model=settings.xai_model,
             api_key=settings.xai_api_key,
             base_url=settings.xai_base_url,
+            timeout=settings.llm_timeout_seconds,
+        )
+    if settings.openrouter_api_key:
+        return OpenAICompatGenerator(
+            model=settings.openrouter_model,
+            api_key=settings.openrouter_api_key,
+            base_url=settings.openrouter_base_url,
             timeout=settings.llm_timeout_seconds,
         )
     if settings.ollama_base_url:
@@ -92,5 +99,6 @@ def build_generator(settings: Settings | None = None) -> OpenAICompatGenerator:
             timeout=settings.llm_timeout_seconds,
         )
     raise RuntimeError(
-        "No generator configured. Set XAI_API_KEY (Grok) or OLLAMA_BASE_URL (local) in .env."
+        "No generator configured. Set XAI_API_KEY (Grok), OPENROUTER_API_KEY, "
+        "or OLLAMA_BASE_URL (local) in .env."
     )
