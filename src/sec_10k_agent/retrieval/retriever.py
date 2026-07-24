@@ -36,7 +36,8 @@ DEFAULT_MODEL = "BAAI/bge-large-en-v1.5"
 DEFAULT_K = 5
 
 # Columns selected for every search, in the order RetrievedChunk expects them.
-_SELECT_COLUMNS = (
+# Shared with bm25.py so the lexical leg returns the same shape.
+SELECT_COLUMNS = (
     "chunk_id",
     "ticker",
     "fiscal_year",
@@ -53,17 +54,14 @@ def to_pgvector_literal(vec: Sequence[float]) -> str:
     return "[" + ",".join(repr(float(x)) for x in vec) + "]"
 
 
-def build_search_sql(
+def build_filter_clause(
     ticker: str | None = None,
     fiscal_year: int | None = None,
     section: str | None = None,
 ) -> tuple[str, dict[str, object]]:
-    """Build the parameterized similarity-search SQL and its filter params.
-
-    Returns (sql, params). The caller adds the `q` (vector literal) and `k`
-    (limit) bind params. Filters are optional and combined with AND; omitting
-    all of them searches the whole corpus.
-    """
+    """Build the shared `WHERE` clause and bind params for ticker/fy/section
+    pre-filters. Used by both dense (pgvector) and lexical (BM25) search so the
+    two retrieval legs agree on exactly which rows are in scope."""
     conditions: list[str] = []
     params: dict[str, object] = {}
     if ticker is not None:
@@ -75,9 +73,23 @@ def build_search_sql(
     if section is not None:
         conditions.append("section = :section")
         params["section"] = section
-
     where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
-    columns = ", ".join(_SELECT_COLUMNS)
+    return where, params
+
+
+def build_search_sql(
+    ticker: str | None = None,
+    fiscal_year: int | None = None,
+    section: str | None = None,
+) -> tuple[str, dict[str, object]]:
+    """Build the parameterized similarity-search SQL and its filter params.
+
+    Returns (sql, params). The caller adds the `q` (vector literal) and `k`
+    (limit) bind params. Filters are optional and combined with AND; omitting
+    all of them searches the whole corpus.
+    """
+    where, params = build_filter_clause(ticker, fiscal_year, section)
+    columns = ", ".join(SELECT_COLUMNS)
     sql = f"""
         SELECT {columns},
                embedding <=> CAST(:q AS vector) AS distance
@@ -125,6 +137,12 @@ class Retriever:
         self._engine = engine or create_engine(get_settings().postgres_dsn)
         self._model_name = model_name
         self._embedder = embedder or (lambda q: embed_query(q, model_name))
+
+    @property
+    def engine(self) -> Engine:
+        """The SQLAlchemy engine backing this retriever, shared with the BM25
+        lexical index so both retrieval legs hit the same database."""
+        return self._engine
 
     def search(
         self,

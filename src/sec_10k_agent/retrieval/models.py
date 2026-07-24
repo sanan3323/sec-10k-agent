@@ -25,6 +25,12 @@ class RetrievedChunk(BaseModel):
         ...,
         description="Cosine distance from pgvector's `<=>` operator. Lower is closer; range [0, 2].",
     )
+    fusion_score: float | None = Field(
+        None, description="Reciprocal-rank-fusion score when combined via hybrid retrieval."
+    )
+    rerank_score: float | None = Field(
+        None, description="Cross-encoder relevance score when reranked (Phase 5)."
+    )
 
     @property
     def score(self) -> float:

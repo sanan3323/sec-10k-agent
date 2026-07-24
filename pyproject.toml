@@ -64,9 +64,12 @@ eval = [
 ]
 
 # Phase 5: hybrid retrieval + reranking.
+# Reranking uses fastembed's ONNX cross-encoder (already a core dep), not
+# FlagEmbedding/bge-reranker-v2-m3 -- FlagEmbedding pulls torch, which has no
+# wheel for Intel Mac, the same wall ADR-007 already hit for embeddings. See
+# ADR-010.
 retrieval = [
     "rank-bm25>=0.2.2",
-    "FlagEmbedding>=1.2",       # for bge-reranker-v2-m3
 ]
 
 # Phase 6: agent. Framework choice is deferred — see architecture.md.
