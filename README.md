@@ -2,7 +2,7 @@
 
 A RAG agent for SEC 10-K filings. Multi-hop questions, every claim cited, evals run in CI.
 
-**Status:** Phase 4 done. The eval harness scores the golden set on retrieval metrics (context recall, hit@k, MRR) plus an LLM-as-judge for faithfulness and correctness, via `sec10k eval`. First baseline on the 26-item seed set: overall faithfulness 0.89, correctness 0.73, retrieval recall 92% (single-hop is strong on single-fact/synthesis at 100% recall; temporal lags at 67% — the gap Phases 5-6 target). Phase 3 (RAG MVP: `sec10k ask` + Streamlit), Phase 2 (pgvector retrieval), and Phase 1 (ingestion) are done. Generation runs on Grok, OpenRouter, or local Ollama — a config switch. Phase 1c (XBRL) is partial; see Known limitations. Phase 5 (hybrid retrieval + reranking) is next.
+**Status:** Phase 5 implemented and measured, kept opt-in. `sec10k ask`/`sec10k eval --hybrid` add BM25 lexical fusion (RRF) and cross-encoder reranking on top of dense retrieval. Measured against the Phase 4 dense-only baseline on the 26-item seed set, the result is mixed, not a clean win: faithfulness rose (0.89 → 0.94) but correctness fell (0.73 → 0.62), driven almost entirely by the temporal bucket (0.67 → 0.37) — the cross-encoder reranks each chunk by topical relevance alone, with no fiscal-year diversity awareness, so multi-year comparison questions can end up served several same-year chunks instead of one-per-year coverage. Both baselines are committed under `data/eval/baselines/` for comparison. **Hybrid stays opt-in (`--dense-only` is still the default)** pending diversity-aware selection — a natural fit for Phase 6's router, which already plans to detect `is_temporal`. Phase 4 (eval harness), Phase 3 (RAG MVP), Phase 2 (pgvector retrieval), and Phase 1 (ingestion) are done. Phase 1c (XBRL) is partial; see Known limitations. Phase 6 (agent: router + decomposition + multi-hop) is next.
 
 ---
 
@@ -130,7 +130,7 @@ Detail in [docs/architecture.md](docs/architecture.md). Decision history in [doc
 | 2 | done | pgvector indexing + filtered retrieval | 3,761 chunks with 1024-dim BGE embeddings; HNSW + btree indexes; retrieval verified end-to-end |
 | 3 | done | Single-hop RAG MVP + Streamlit UI with retrieval trace | `sec10k ask` + Streamlit; cited answers via Grok or local Ollama. **Blog post #1**: Section-Aware Chunking Without Overlap |
 | 4 | done | Eval harness: golden set, retrieval metrics + LLM-judge (faithfulness/correctness), weekly CI | Baseline: faith 0.89 / correct 0.73 / recall 92% on the 26-item seed. See [ADR-009](docs/design-decisions.md) on judge-vs-RAGAS |
-| 5 | pending | Hybrid retrieval + reranking | **Blog post #2**: faithfulness lift |
+| 5 | done | Hybrid retrieval (BM25+dense via RRF) + cross-encoder reranking, opt-in | Faithfulness lift (0.89→0.94) but correctness regression on temporal (0.67→0.37) — mixed result, documented honestly, kept opt-in. **Blog post #2**: when hybrid retrieval hurts |
 | 6 | pending | Agent: pick framework, router, decomposition, multi-hop | Multi-hop eval bucket |
 | 7 | pending | Production: deploy, observability, caching, cost tracking | Live demo |
 | 8 | pending | Launch writeup | **Blog post #3** |

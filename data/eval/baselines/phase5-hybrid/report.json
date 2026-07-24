@@ -1,0 +1,586 @@
+{
+  "created_at": "2026-07-24T16:05:45+00:00",
+  "config": {
+    "k": 5,
+    "use_filters": true,
+    "judged": true,
+    "n_items": 26
+  },
+  "results": [
+    {
+      "id": "ut-001",
+      "bucket": "single_fact",
+      "tags": [
+        "supply_chain",
+        "components"
+      ],
+      "answer": "Yes, Apple relies on single or limited sources for the supply and manufacture of many critical components. This reliance can exacerbate negative consequences in the event of a business interruption affecting those sources [1][2][3][4].",
+      "n_sources": 5,
+      "n_cited": 4,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "faithfulness_reasoning": "The answer accurately states that Apple relies on single or limited sources for critical components and that this can exacerbate negative consequences during business interruptions, with all claims directly supported by the cited context.",
+      "correctness_reasoning": "The answer accurately and completely reflects the information provided in the reference answer, including the potential negative consequences.",
+      "prompt_tokens": 2405,
+      "completion_tokens": 45,
+      "error": null
+    },
+    {
+      "id": "ut-002",
+      "bucket": "single_fact",
+      "tags": [
+        "supply_chain",
+        "tsmc"
+      ],
+      "answer": "I don't have enough information in the provided filings to answer that.",
+      "n_sources": 5,
+      "n_cited": 0,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.0,
+      "faithfulness_reasoning": "The answer correctly states that the information is not available in the provided context, as the context does not contain details about the specific question asked.",
+      "correctness_reasoning": "The answer states it does not have enough information, but the reference provides a clear answer about NVIDIA's dependence on TSMC and other subcontractors for manufacturing.",
+      "prompt_tokens": 2189,
+      "completion_tokens": 13,
+      "error": null
+    },
+    {
+      "id": "ut-003",
+      "bucket": "single_fact",
+      "tags": [
+        "china",
+        "export_controls"
+      ],
+      "answer": "Yes, U.S. government export controls have significantly affected NVIDIA's ability to sell certain products into China. The restrictions announced during the third quarter of fiscal year 2023 specifically target China's semiconductor and supercomputing industries, impacting exports of certain chips, including the A100 and H100 integrated circuits, as well as related systems and boards. Additionally, new licensing requirements effective in October 2023 further restrict exports of products exceeding specific performance thresholds to China and other designated countries [1][4]. NVIDIA has also noted that these export controls could disrupt their supply chain and distribution channels, negatively impacting their ability to serve demand in China and other markets [2][3][5].",
+      "n_sources": 5,
+      "n_cited": 5,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "faithfulness_reasoning": "All claims in the answer are directly supported by the provided context, with specific references to the relevant documents.",
+      "correctness_reasoning": "The answer fully aligns with the reference, confirming the impact of U.S. export controls on NVIDIA's sales to China and providing additional relevant details that support the reference's statement.",
+      "prompt_tokens": 2385,
+      "completion_tokens": 135,
+      "error": null
+    },
+    {
+      "id": "ut-004",
+      "bucket": "single_fact",
+      "tags": [
+        "segments",
+        "business"
+      ],
+      "answer": "JPMorgan Chase's main reportable business segments are:\n\n1. Consumer & Community Banking (CCB)\n2. Corporate & Investment Bank (CIB)\n3. Commercial Banking (CB)\n4. Asset & Wealth Management (AWM)\n\nHowever, as of FY2024, the firm reorganized to have three reportable business segments: CCB, CIB, and AWM, with the remaining activities classified under Corporate [1][2][3][4][5].",
+      "n_sources": 5,
+      "n_cited": 5,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "The answer accurately lists the business segments and correctly identifies the reorganization in FY2024, with all claims directly supported by the provided context.",
+      "correctness_reasoning": "The answer correctly identifies the four main business segments but then introduces an incorrect reorganization for FY2024, which is not present in the reference.",
+      "prompt_tokens": 2619,
+      "completion_tokens": 97,
+      "error": null
+    },
+    {
+      "id": "ut-005",
+      "bucket": "single_fact",
+      "tags": [
+        "legal",
+        "antitrust"
+      ],
+      "answer": "Yes, Apple identifies risks from legal or regulatory proceedings related to competition or antitrust. The company is currently subject to antitrust investigations in various jurisdictions, including Europe and the U.S., which could result in legal proceedings and claims that may materially adversely impact its business, results of operations, and financial condition. For example, the company faces civil antitrust lawsuits in the U.S. alleging monopolization in the smartphone market and is also under investigation regarding App Store terms and conditions. If these investigations or litigations are resolved against the company, it could face significant fines and be required to make changes to its business practices, adversely affecting its operations and financial condition [1][2][3][4][5].",
+      "n_sources": 5,
+      "n_cited": 5,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "faithfulness_reasoning": "The answer accurately states that Apple identifies risks from legal or regulatory proceedings related to competition or antitrust, and all claims about current investigations, potential impacts, and specific examples (Europe, U.S. civil antitrust lawsuits, App Store terms and conditions) are directly supported by the provided context from multiple sources.",
+      "correctness_reasoning": "The answer correctly identifies that Apple discloses risks from antitrust and competition-related proceedings and provides relevant examples, aligning perfectly with the reference.",
+      "prompt_tokens": 2554,
+      "completion_tokens": 141,
+      "error": null
+    },
+    {
+      "id": "ut-006",
+      "bucket": "single_fact",
+      "tags": [
+        "regulation"
+      ],
+      "answer": "Yes, JPMorgan describes itself as subject to extensive government regulation and supervision. The filings state that JPMorgan Chase's businesses are highly regulated, and the laws, rules, and regulations that apply to it have a significant impact on its business and operations. It must comply with these regulations in all jurisdictions where it operates, which significantly affects how it conducts its business and structures its operations [2][3][4][5].",
+      "n_sources": 5,
+      "n_cited": 4,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "faithfulness_reasoning": "The answer accurately states that JPMorgan is subject to extensive government regulation and supervision, and all claims are directly supported by the provided context, with correct citations.",
+      "correctness_reasoning": "The answer correctly identifies that JPMorgan describes itself as subject to extensive government regulation and supervision, aligning with the reference.",
+      "prompt_tokens": 2491,
+      "completion_tokens": 85,
+      "error": null
+    },
+    {
+      "id": "ut-007",
+      "bucket": "single_fact",
+      "tags": [
+        "segments",
+        "business"
+      ],
+      "answer": "NVIDIA serves four broad market platforms or segments: Data Center, Gaming, Professional Visualization, and Automotive [1][4].",
+      "n_sources": 5,
+      "n_cited": 2,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "The answer accurately identifies the four market segments directly from the provided context, citing both [1] and [4] which list these segments.",
+      "correctness_reasoning": "The answer correctly identifies the four broad market platforms but omits the organizational structure (Compute & Networking and Graphics segments) mentioned in the reference.",
+      "prompt_tokens": 2494,
+      "completion_tokens": 26,
+      "error": null
+    },
+    {
+      "id": "ut-008",
+      "bucket": "single_fact",
+      "tags": [
+        "distribution"
+      ],
+      "answer": "Yes, Apple depends on carriers and other channel partners to distribute its products. The company’s business can be significantly impacted by its suppliers, contract manufacturers, logistics providers, distributors, cellular network carriers, and other channel partners. Disruptions or adverse conditions affecting these partners can materially affect Apple's business, results of operations, and financial condition [1][3][5].",
+      "n_sources": 5,
+      "n_cited": 3,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "faithfulness_reasoning": "The answer accurately states that Apple depends on carriers and other channel partners for distribution and that disruptions to these partners can significantly impact Apple's business, directly supported by multiple provided contexts.",
+      "correctness_reasoning": "The answer correctly states that Apple depends on carriers and other channel partners for distribution and elaborates on the potential impact of disruptions, aligning perfectly with the reference.",
+      "prompt_tokens": 2502,
+      "completion_tokens": 74,
+      "error": null
+    },
+    {
+      "id": "ut-009",
+      "bucket": "single_fact",
+      "tags": [
+        "cyber",
+        "operational"
+      ],
+      "answer": "Yes, JPMorgan identifies cybersecurity and technology-failure risk among its risk factors. The filings detail various aspects of these risks, including the potential for increased vulnerability to cyber attacks due to the expansion of digital banking, advances in artificial intelligence, and the integration of new businesses. Specific risks include the inability to maintain security due to advances in quantum computing, the dynamic nature of the cyber threat landscape, and the need for continuous enhancement of cybersecurity controls [1][2][3][4][5].",
+      "n_sources": 5,
+      "n_cited": 5,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "faithfulness_reasoning": "All claims in the answer are directly supported by the provided context, with specific references to the relevant documents.",
+      "correctness_reasoning": "The answer correctly identifies that JPMorgan discloses cybersecurity and technology-failure risks and provides additional relevant details that align with the reference's 'Yes' and expands on the types of risks mentioned.",
+      "prompt_tokens": 1787,
+      "completion_tokens": 99,
+      "error": null
+    },
+    {
+      "id": "ut-010",
+      "bucket": "single_fact",
+      "tags": [
+        "quality",
+        "defects"
+      ],
+      "answer": "Yes, Apple discloses risks from products and services being affected by design and manufacturing defects. The company states that its complex hardware and software products can experience issues that may interfere with their intended operation. These defects can lead to safety risks, harm to the company's reputation, and adverse effects on business performance, including product liability claims and reduced demand for products and services. This information is detailed in the filings for fiscal years 2021, 2022, 2024, and 2025 [1][2][3][4].",
+      "n_sources": 5,
+      "n_cited": 4,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "Every claim in the answer is directly supported by the provided context, with specific references to the fiscal year filings where the information can be found.",
+      "correctness_reasoning": "The answer correctly identifies that Apple discloses risks from design and manufacturing defects and provides relevant details, but it incorrectly cites future fiscal years (2024, 2025) which are not yet available in 10-K filings.",
+      "prompt_tokens": 2455,
+      "completion_tokens": 109,
+      "error": null
+    },
+    {
+      "id": "ut-011",
+      "bucket": "single_fact",
+      "tags": [
+        "negative_control",
+        "abstention"
+      ],
+      "answer": "I don't have enough information in the provided filings to answer that.",
+      "n_sources": 5,
+      "n_cited": 0,
+      "context_recall": null,
+      "reciprocal_rank": null,
+      "hit_at_k": null,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "faithfulness_reasoning": "The answer correctly states that the information is not present, as the provided context does not contain details about Apple's specific environmental goals or initiatives beyond general statements about pursuing them.",
+      "correctness_reasoning": "The answer correctly states that there is not enough information in the filings to answer the question, which aligns with the reference that the 10-K does not disclose cryptocurrency mining operations.",
+      "prompt_tokens": 2269,
+      "completion_tokens": 13,
+      "error": null
+    },
+    {
+      "id": "ut-012",
+      "bucket": "single_fact",
+      "tags": [
+        "negative_control",
+        "abstention"
+      ],
+      "answer": "I don't have enough information in the provided filings to answer that.",
+      "n_sources": 5,
+      "n_cited": 0,
+      "context_recall": null,
+      "reciprocal_rank": null,
+      "hit_at_k": null,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "faithfulness_reasoning": "The answer correctly states that the information is not available in the provided context, as the context does not contain details about the number of employees.",
+      "correctness_reasoning": "The answer correctly states that it does not have enough information, which aligns with the reference indicating the filings contain no such information.",
+      "prompt_tokens": 2779,
+      "completion_tokens": 14,
+      "error": null
+    },
+    {
+      "id": "sy-001",
+      "bucket": "synthesis",
+      "tags": [
+        "supply_chain"
+      ],
+      "answer": "Apple discloses several key supply chain and manufacturing risks:\n\n1. **Dependence on Single or Limited Sources**: Apple relies on single or limited sources for many critical components, which increases vulnerability to business interruptions affecting these suppliers. Such disruptions can exacerbate negative consequences for the Company, including delays and increased costs [1][5].\n\n2. **Outsourcing Risks**: A significant portion of Apple's manufacturing is outsourced to partners primarily located in Asia. This reliance can lead to adverse effects on quality, supply, and costs if these partners fail to perform or if there are disruptions due to various factors such as natural disasters, political issues, or economic conditions [2][3].\n\n3. **Industrial Accidents and Public Health Issues**: The Company’s operations are subject to risks from industrial accidents at suppliers and major public health issues, such as pandemics, which can disrupt supply chains and affect demand for products [1][5].\n\n4. **Quality and Production Ramp-Up Issues**: The success of new product introductions depends on timely development and the ability to manage production ramp-up issues. Delays or defects in new products can adversely affect the Company’s reputation and financial performance [2][4].\n\n5. **Market Volatility and Component Shortages**: Apple faces risks from market volatility, including supply shortages and price increases for components, particularly in the semiconductor industry, which can impact the availability of products and overall business operations [3][4].\n\n6. **Insurance Limitations**: While Apple maintains insurance for certain losses, this coverage may not be sufficient to cover all potential losses arising from supply chain disruptions [1][5].\n\nThese risks collectively highlight the complexities and vulnerabilities in Apple's supply chain and manufacturing processes.",
+      "n_sources": 5,
+      "n_cited": 5,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "All claims in the answer are directly supported by the provided context, with accurate citations for each point.",
+      "correctness_reasoning": "The answer correctly identifies several key risks mentioned in the reference, such as reliance on outsourcing/manufacturing partners concentrated in Asia, dependence on single or limited component sources, and capacity or production-ramp constraints. However, it misses the specific mention of 'risk of manufacturing or quality defects' as a distinct point, instead embedding it within other points. Additionally, the citations are not to 'AAPL Item 1A' as requested by the reference, but rather to generic bracketed numbers.",
+      "prompt_tokens": 2475,
+      "completion_tokens": 344,
+      "error": null
+    },
+    {
+      "id": "sy-002",
+      "bucket": "synthesis",
+      "tags": [
+        "concentration",
+        "datacenter"
+      ],
+      "answer": "NVIDIA faces several risks related to customer concentration and demand in the data-center/AI market, including:\n\n1. **Failure to Estimate Demand**: NVIDIA has highlighted that improper estimation of customer demand has led to mismatches between supply and demand, which could adversely impact their business operations and financial results [2].\n\n2. **Dependency on Third-Party Suppliers**: The company relies on third-party suppliers for technology and manufacturing, which reduces their control over product quantity and quality. This dependency can harm their ability to meet customer demand [2][4].\n\n3. **Volatility in Revenue**: The demand estimates for new use cases, applications, and services, particularly in the AI sector, can be incorrect, leading to revenue volatility. The emergence of technologies like generative AI models has increased demand for data center products, but the long-term trajectory of this demand remains uncertain [5].\n\n4. **Geopolitical Tensions**: Geopolitical issues, especially involving regions like Taiwan and China, where NVIDIA has significant suppliers and partners, could materially affect their supply continuity and, consequently, their ability to meet customer demand [5].\n\nThese factors collectively indicate that NVIDIA's ability to effectively manage customer demand and maintain a stable supply chain in the data-center/AI market is fraught with challenges.",
+      "n_sources": 5,
+      "n_cited": 3,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "All claims made in the answer are directly supported by the provided context, with accurate citations to the relevant documents.",
+      "correctness_reasoning": "The answer correctly identifies the risk of demand estimation and volatility, but it misses the key point about customer concentration and does not cite Item 1A as requested by the reference.",
+      "prompt_tokens": 2281,
+      "completion_tokens": 260,
+      "error": null
+    },
+    {
+      "id": "sy-003",
+      "bucket": "synthesis",
+      "tags": [
+        "credit_risk"
+      ],
+      "answer": "JPMorgan highlights several credit-related risks, including:\n\n1. Potential negative effects from adverse changes in the financial condition of clients, customers, counterparties, custodians, and central counterparties.\n2. The potential for losses due to declines in the value of collateral in stressed market conditions.\n3. Potential negative impacts from concentrations of credit risk with respect to clients, customers, counterparties, and other market participants.\n\nThese risks are mentioned in the filings for fiscal years 2021 through 2025, with consistent language across the years [1][2][3][4][5].",
+      "n_sources": 5,
+      "n_cited": 5,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "All claims in the answer are directly supported by the provided context, with accurate references to the fiscal year filings.",
+      "correctness_reasoning": "The answer mentions some credit-related risks but misses key aspects like consumer and wholesale lending, sensitivity to economic downturns, rising defaults, and the allowance for credit losses, which are explicitly stated in the reference.",
+      "prompt_tokens": 2692,
+      "completion_tokens": 119,
+      "error": null
+    },
+    {
+      "id": "sy-004",
+      "bucket": "synthesis",
+      "tags": [
+        "competition"
+      ],
+      "answer": "Apple describes competition in its markets as highly intense and characterized by several factors. The Company faces substantial competition from companies with significant technical, marketing, distribution, and other resources, as well as established hardware, software, and service offerings. Competitors often imitate Apple's product features and applications, leading to more competitive solutions. Some competitors have broader product lines, lower-priced products, and larger installed bases of active devices, which intensifies the competition. Additionally, certain competitors can provide products and services at little or no profit or even at a loss, further pressuring Apple's market position. The Company holds a minority market share in the global smartphone, personal computer, tablet, and wearables markets, and some of these markets have experienced little to no growth or have contracted overall. Apple emphasizes the need for continual innovation and the introduction of new products and services to remain competitive in these rapidly changing markets [2][4][5].",
+      "n_sources": 5,
+      "n_cited": 3,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "All claims in the answer are directly supported by the provided context, with specific references to the relevant documents.",
+      "correctness_reasoning": "The answer accurately describes Apple's view on competition, including intense competition, imitation, broader product lines of competitors, and the need for innovation, but it fails to mention aggressive pricing and rapid technological change as explicitly as the reference and does not cite Item 1A.",
+      "prompt_tokens": 2407,
+      "completion_tokens": 182,
+      "error": null
+    },
+    {
+      "id": "sy-005",
+      "bucket": "synthesis",
+      "tags": [
+        "supply_chain"
+      ],
+      "answer": "NVIDIA faces significant risks related to its dependence on third-party suppliers and manufacturers. This reliance reduces the company's control over product quantity and quality, manufacturing yields, and delivery schedules, which could adversely impact its business. Additionally, failures to properly estimate customer demand can lead to mismatches between supply and demand, further complicating the situation. Defects in products can also result in substantial remediation costs and damage to NVIDIA's reputation and financial condition [1][2][3].",
+      "n_sources": 5,
+      "n_cited": 3,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 0.6,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "The answer accurately identifies risks related to third-party suppliers, manufacturing, customer demand, and product defects, all of which are supported by Context [1]. However, the answer incorrectly cites Context [2] and [3] as supporting these specific claims, when they do not directly mention 'dependency on third-party suppliers', 'manufacturing yields', or 'defects in products'.",
+      "correctness_reasoning": "The answer correctly identifies the general risks of third-party dependence but misses specific key points from the reference such as reliance on TSMC/foundries, capacity constraints, long lead times, and geopolitical exposure, particularly concentration in Taiwan.",
+      "prompt_tokens": 2250,
+      "completion_tokens": 93,
+      "error": null
+    },
+    {
+      "id": "sy-006",
+      "bucket": "synthesis",
+      "tags": [
+        "cyber",
+        "operational"
+      ],
+      "answer": "JPMorgan discloses several operational and cybersecurity risks, including:\n\n1. **Cybersecurity Risks**:\n   - Vulnerability to cyber attacks if emerging threats and known vulnerabilities are not timely addressed, including risks related to unauthorized access, software vulnerabilities, and third-party vendor oversight [1][3].\n   - The evolving sophistication of cyber attacks, which may go undetected for extended periods, and the potential for third parties to gain access to internal networks [3].\n   - Increased complexity and volume of cyber attacks during heightened geopolitical tensions, and the need for significant investments in technology to enhance security protections [3].\n\n2. **Operational Risks**:\n   - Challenges in maintaining and upgrading systems and infrastructure due to increasing transaction complexity and volume [2][5].\n   - Risks from third-party fraud attempts, which are becoming more complex and frequent, especially during market disruptions [2][5].\n   - Potential for widespread system disruption due to errors made by JPMorgan or other market participants, and the failure to detect weaknesses in operational systems [2][5].\n   - Dependence on external operational systems, which can introduce additional risks from system failures or cyber attacks affecting vendors or market infrastructures [2][5].\n\n3. **Additional Risks**:\n   - Risks associated with the introduction of new products and services, data management processes, and compliance with vendor oversight standards [4].\n   - Strategic, conduct, reputation, country, and people risks that could impact JPMorgan's operations and competitive standing [4]. \n\nThese risks highlight the interconnected nature of cybersecurity and operational stability for JPMorgan.",
+      "n_sources": 5,
+      "n_cited": 5,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "All claims in the answer are directly supported by the provided context, with appropriate citations for each point.",
+      "correctness_reasoning": "The answer correctly identifies cyberattacks, data breaches, fraud, technology and operational failures, and third-party/vendor risk, but it does not cite JPM Item 1A as requested by the reference.",
+      "prompt_tokens": 2180,
+      "completion_tokens": 315,
+      "error": null
+    },
+    {
+      "id": "sy-007",
+      "bucket": "synthesis",
+      "tags": [
+        "china"
+      ],
+      "answer": "I don't have enough information in the provided filings to answer that.",
+      "n_sources": 5,
+      "n_cited": 0,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.0,
+      "faithfulness_reasoning": "The answer correctly states that there is not enough information, as the provided context does not contain details about Apple's specific business practices or financial performance beyond general risk factors.",
+      "correctness_reasoning": "The answer claims it doesn't have enough information, but the reference indicates that the 10-K filing (AAPL Item 1A) contains the requested information about risks tied to China and international operations.",
+      "prompt_tokens": 2464,
+      "completion_tokens": 14,
+      "error": null
+    },
+    {
+      "id": "sy-008",
+      "bucket": "synthesis",
+      "tags": [
+        "export_controls",
+        "china"
+      ],
+      "answer": "NVIDIA faces significant risks related to U.S. government export controls, which may disrupt its supply and distribution chain, particularly for products warehoused in and distributed from Hong Kong. These controls could restrict sales of datacenter GPUs and negatively impact demand for networking products used in servers with these GPUs. Such restrictions may encourage customers outside of China to \"design-out\" U.S. semiconductors to reduce compliance burdens, potentially harming NVIDIA's market position and financial results. Additionally, export controls could lead to increased investment in foreign competitors, which may not be subject to the same restrictions, further disadvantaging NVIDIA. The Chinese government may also impose restrictions on sales to certain customers, affecting revenue from gaming and data center segments due to increased oversight and limitations on gaming activities [3][5].",
+      "n_sources": 5,
+      "n_cited": 2,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 0.6,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "The answer accurately summarizes the risks related to export controls and their potential impact on NVIDIA's business, as detailed in CONTEXT [3]. However, the last sentence incorrectly attributes the Chinese government's restrictions on gaming activities and digital platform oversight to CONTEXT [5], when it is actually from CONTEXT [3].",
+      "correctness_reasoning": "The answer correctly identifies risks related to export controls, including impacts on datacenter GPUs and potential customer design-outs, but it misses key points from the reference such as U.S. licensing requirements, the unpredictability of controls, and the specific citation to NVDA Item 1A.",
+      "prompt_tokens": 2250,
+      "completion_tokens": 157,
+      "error": null
+    },
+    {
+      "id": "tm-001",
+      "bucket": "temporal",
+      "tags": [
+        "cyber",
+        "temporal"
+      ],
+      "answer": "Apple's dedicated cybersecurity-risk disclosure (Item 1C) has varied across fiscal years. In the fiscal year 2023, the disclosure states that cybersecurity is \"Not applicable,\" indicating that there was no specific dedicated section for cybersecurity risks in that filing [1]. In contrast, the fiscal year 2022 included a detailed discussion of cybersecurity risks, emphasizing the importance of protecting customer data and the potential impact of cybersecurity incidents on the company's operations [3]. \n\nFor fiscal years 2024 and 2025, the filings do not provide specific information regarding cybersecurity risks in Item 1C, as they also do not mention cybersecurity in that section [4][2]. Therefore, the scope of dedicated cybersecurity-risk disclosure has shifted from a detailed discussion in 2022 to being marked as \"Not applicable\" in 2023, with no specific mention in the subsequent years.",
+      "n_sources": 5,
+      "n_cited": 4,
+      "context_recall": 0.0,
+      "reciprocal_rank": 0.0,
+      "hit_at_k": false,
+      "faithfulness": 0.6,
+      "correctness": 0.0,
+      "faithfulness_reasoning": "The answer accurately states that Item 1C for FY2023 is 'Not applicable' and that FY2024 and FY2025 do not mention cybersecurity in Item 1C. However, it incorrectly claims that FY2022 included a detailed discussion of cybersecurity risks in Item 1C, as the provided context for FY2022 does not contain any information about cybersecurity.",
+      "correctness_reasoning": "The answer incorrectly states that Item 1C existed in 2022 and 2023, and that it does not contain specific information for 2024 and 2025, directly contradicting the reference that Item 1C appears only for fiscal years ending after Dec 15, 2023 (FY2024 onward).",
+      "prompt_tokens": 2688,
+      "completion_tokens": 175,
+      "error": null
+    },
+    {
+      "id": "tm-002",
+      "bucket": "temporal",
+      "tags": [
+        "export_controls",
+        "temporal"
+      ],
+      "answer": "NVIDIA's discussion of China export-control risk has evolved significantly over its recent fiscal years, reflecting increasing concerns and regulatory changes.\n\n1. **Fiscal Year 2022**: The discussion was more general, highlighting the risks associated with failing to meet market needs and the rapid changes in technology and customer requirements. There was no specific mention of export controls impacting operations in China, but it acknowledged the potential for risks related to evolving industry standards and technological changes [4][5].\n\n2. **Fiscal Year 2023**: The narrative became more specific, detailing the impact of U.S. government export restrictions announced in the third quarter, which targeted China's semiconductor and supercomputing industries. This included licensing requirements for certain products, such as the A100 and H100 integrated circuits, and indicated that these restrictions could materially affect NVIDIA's business and operations in China [1].\n\n3. **Fiscal Year 2024**: The discussion further expanded, emphasizing the potential for export controls to disrupt supply chains and negatively impact demand not only in China but also in other markets. It noted that excessive or shifting export controls could encourage customers to seek alternatives to U.S. semiconductors, thereby harming NVIDIA's market position. The company also mentioned new licensing requirements that became effective in October 2023, indicating a proactive approach to the evolving regulatory landscape [2][3].\n\nOverall, NVIDIA's discussions have transitioned from a general acknowledgment of market risks to a detailed analysis of specific export control measures and their potential adverse effects on business operations and market competitiveness.",
+      "n_sources": 5,
+      "n_cited": 5,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 1.0,
+      "faithfulness_reasoning": "The answer accurately summarizes the evolution of NVIDIA's discussion on China export-control risk across the specified fiscal years, with all claims directly supported by the provided context.",
+      "correctness_reasoning": "The answer accurately describes the escalation of NVIDIA's discussion of China export-control risk over time, detailing how it became more specific and impactful from FY2022 to FY2024, aligning with the reference's requirement for describing escalation and expanding discussion.",
+      "prompt_tokens": 2448,
+      "completion_tokens": 307,
+      "error": null
+    },
+    {
+      "id": "tm-003",
+      "bucket": "temporal",
+      "tags": [
+        "supply_chain",
+        "temporal"
+      ],
+      "answer": "Yes, Apple's characterization of supply-chain concentration risk has stayed consistent across the fiscal years in scope. In both the FY2022 and FY2024 filings, Apple highlights that a significant majority of its manufacturing is performed by outsourcing partners located primarily in Asia, and that changes or additions to the supply chain involve considerable risks and uncertainties. Specifically, both filings mention the concentration of manufacturing with a small number of partners and the potential adverse effects on quality or quantity of products due to diminished control over production and distribution [1][2][3]. \n\nAdditionally, the FY2025 filing reiterates the reliance on outsourcing partners and the risks associated with international trade restrictions affecting the supply chain, further confirming the consistency in the characterization of supply-chain concentration risk [4].",
+      "n_sources": 5,
+      "n_cited": 4,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 0.6,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "The answer accurately states that Apple's characterization of supply-chain concentration risk has stayed consistent across the fiscal years, and correctly identifies that both FY2022 and FY2024 filings mention manufacturing by outsourcing partners primarily in Asia and the risks of changes to the supply chain. However, the claim that both filings mention 'the potential adverse effects on quality or quantity of products due to diminished control over production and distribution' is only explicitly stated in the FY2022 context, not FY2024. The FY2025 filing does reiterate reliance on outsourcing partners and risks from trade restrictions, but the answer slightly overstates the direct repetition of all specific details across all mentioned years.",
+      "correctness_reasoning": "The answer correctly identifies consistency in supply-chain concentration risk and cites outsourcing partners in Asia and single/limited-source components, but it incorrectly references a 'FY2025 filing' which is out of scope and likely non-existent, and only explicitly cites two fiscal years (2022 and 2024) instead of at least two distinct years from the provided filings.",
+      "prompt_tokens": 2526,
+      "completion_tokens": 149,
+      "error": null
+    },
+    {
+      "id": "tm-004",
+      "bucket": "temporal",
+      "tags": [
+        "interest_rate",
+        "temporal"
+      ],
+      "answer": "JPMorgan's framing of interest-rate and market risk has shown some consistency across the years, with specific language and emphasis varying slightly.\n\n1. **FY2022**: The risk factors included the effects of economic and market events and conditions, governmental policies, changes in interest rates and credit spreads, and market fluctuations on JPMorgan Chase’s consumer and wholesale businesses, investment and market-making positions, earnings, liquidity, and capital levels [2].\n\n2. **FY2023**: The description remained similar, highlighting the effects of economic and market events, governmental policies, changes in interest rates and credit spreads, and market fluctuations on the same aspects of the business [3].\n\n3. **FY2025**: The framing continued to emphasize the impact of unfavorable economic and market events, political developments, changes in interest rates and credit spreads, and market fluctuations on JPMorgan Chase’s businesses, investments, earnings, liquidity, and capital levels [1].\n\nOverall, while the core elements of interest-rate and market risk have been consistently identified across the years, the language has been slightly refined, particularly in the context of regulatory and operational risks. The emphasis on the potential negative impacts of these risks on various aspects of the business has remained a constant theme.",
+      "n_sources": 5,
+      "n_cited": 3,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.0,
+      "faithfulness_reasoning": "The answer accurately summarizes the consistency and slight variations in JPMorgan's framing of interest-rate and market risk across the specified fiscal years, directly citing the provided context for each point.",
+      "correctness_reasoning": "The answer does not discuss how the rate environment shift is reflected in the risk-factor language, nor does it cite JPM Item 1A from more than one fiscal year, as required by the reference.",
+      "prompt_tokens": 2605,
+      "completion_tokens": 249,
+      "error": null
+    },
+    {
+      "id": "tm-005",
+      "bucket": "temporal",
+      "tags": [
+        "datacenter",
+        "temporal"
+      ],
+      "answer": "NVIDIA's emphasis on data-center and AI demand has evolved significantly over the fiscal years in scope:\n\n- **Fiscal Year 2022**: NVIDIA's computing platform was focused on accelerating compute-intensive workloads, including AI, data analytics, and scientific computing across various sectors. The company engaged with thousands of organizations to implement AI in transformative ways, highlighting its commitment to AI and data center solutions [3].\n\n- **Fiscal Year 2023**: The company expanded its focus to include a broader range of applications, such as autonomous vehicles and robotics, while still emphasizing AI and data science. The demand for GPU-powered deep learning was noted to be adopted by thousands of enterprises, indicating a growing reliance on AI solutions [4].\n\n- **Fiscal Year 2024**: NVIDIA continued to emphasize its data-center-scale offerings, which are essential for modern AI applications. The company highlighted the importance of its GPU architecture in addressing the needs of various industries, reinforcing its strategy to leverage AI and data center capabilities [1].\n\n- **Fiscal Year 2025**: The demand for data center compute and networking platforms for accelerated computing and AI solutions drove significant revenue growth. The introduction of the Hopper architecture and the shipping of production systems of the Blackwell architecture further underscored NVIDIA's commitment to meeting the increasing demand for AI and data center products [5].\n\nOverall, there has been a clear trend of increasing emphasis on data-center and AI demand, with NVIDIA expanding its offerings and capabilities in these areas across the fiscal years.",
+      "n_sources": 5,
+      "n_cited": 4,
+      "context_recall": 0.0,
+      "reciprocal_rank": 0.0,
+      "hit_at_k": false,
+      "faithfulness": 1.0,
+      "correctness": 0.6,
+      "faithfulness_reasoning": "All claims in the answer are directly supported by the provided context, with specific fiscal years and corresponding details accurately extracted and summarized.",
+      "correctness_reasoning": "The answer correctly identifies the growing prominence of data-center/AI demand over the fiscal years but fails to cite the specific SEC 10-K Item 1 or Item 1A as required by the reference.",
+      "prompt_tokens": 2523,
+      "completion_tokens": 302,
+      "error": null
+    },
+    {
+      "id": "tm-006",
+      "bucket": "temporal",
+      "tags": [
+        "china",
+        "temporal"
+      ],
+      "answer": "I don't have enough information in the provided filings to answer that.",
+      "n_sources": 5,
+      "n_cited": 0,
+      "context_recall": 1.0,
+      "reciprocal_rank": 1.0,
+      "hit_at_k": true,
+      "faithfulness": 1.0,
+      "correctness": 0.0,
+      "faithfulness_reasoning": "The answer accurately states that the information is not available in the provided context, which is true.",
+      "correctness_reasoning": "The answer states it does not have enough information, but the question is about SEC 10-K filings, which are publicly available and contain the requested information.",
+      "prompt_tokens": 2520,
+      "completion_tokens": 13,
+      "error": null
+    }
+  ],
+  "overall": {
+    "n": 26,
+    "faithfulness_mean": 0.9384615384615385,
+    "correctness_mean": 0.6230769230769231,
+    "context_recall_mean": 0.9166666666666666,
+    "hit_at_k_rate": 0.9166666666666666,
+    "mrr": 0.9166666666666666
+  },
+  "by_bucket": {
+    "single_fact": {
+      "n": 12,
+      "faithfulness_mean": 1.0,
+      "correctness_mean": 0.8166666666666668,
+      "context_recall_mean": 1.0,
+      "hit_at_k_rate": 1.0,
+      "mrr": 1.0
+    },
+    "synthesis": {
+      "n": 8,
+      "faithfulness_mean": 0.9,
+      "correctness_mean": 0.525,
+      "context_recall_mean": 1.0,
+      "hit_at_k_rate": 1.0,
+      "mrr": 1.0
+    },
+    "temporal": {
+      "n": 6,
+      "faithfulness_mean": 0.8666666666666667,
+      "correctness_mean": 0.3666666666666667,
+      "context_recall_mean": 0.6666666666666666,
+      "hit_at_k_rate": 0.6666666666666666,
+      "mrr": 0.6666666666666666
+    }
+  },
+  "total_prompt_tokens": 63238,
+  "total_completion_tokens": 3530
+}
