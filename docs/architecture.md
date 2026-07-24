@@ -200,6 +200,9 @@ The agent also has a `lookup_financial_metric` tool that queries `xbrl_facts`. T
 
 - NLI model vs. LLM judge for citation verification. Decide in Phase 6 based on latency, cost, and how well it agrees with the rubric.
 - How to handle filings that restate prior years. Out of scope for v1. Track in a `restatements.md` log if it comes up.
-- Cross-encoder reranker latency on CPU might be the bottleneck. If so, swap to Cohere Rerank API in Phase 5.
-- Sparse retrieval: `rank_bm25` over parquet vs. Postgres `tsvector`. Bench both in Phase 5.
 - Exhibit 13 / incorporated-by-reference parsing path. JPM and NVDA need it for full MD&A and financials coverage. Decide in Phase 1d or defer to post-v1.
+
+### Resolved in Phase 5
+
+- **Sparse retrieval: `rank_bm25` over parquet vs. Postgres `tsvector`.** Neither, exactly: `rank_bm25` queries rows fetched live from `text_chunks` (Postgres), not the parquet file. This keeps the lexical leg and the dense leg reading the same live table (no drift if the corpus is re-embedded or re-chunked) while avoiding a second index to maintain (`tsvector`). Per-filter row fetches are cached in-process since a corpus subset rarely changes mid-run. See `retrieval/bm25.py`.
+- **Cross-encoder reranker latency on CPU.** Not a bottleneck in practice: reranking runs only on the fused candidate set (tens of chunks, not the whole corpus), and the ONNX reranker (see ADR-010) adds low seconds per query on CPU. No need for the Cohere Rerank API fallback.
