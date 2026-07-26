@@ -141,9 +141,9 @@ With one DB, "give me chunks for AAPL FY2025 Item 1A near vector X" is one SQL q
 
 ### 4. Agent (Phase 6)
 
-> **Framework: not yet picked.** Options are LangGraph, PydanticAI, and a hand-rolled state machine. Decision when Phase 6 starts. See [ADR-002](design-decisions.md).
+> **Framework: hand-rolled state machine.** A short linear pipeline with a single bounded retry edge doesn't need a graph engine's execution model. See [ADR-002](design-decisions.md).
 
-The node graph, regardless of framework:
+The node graph:
 
 State carries `question`, `routing_plan`, `subqueries[]`, `retrievals[]`, `draft_answer`, `verified_citations[]`, `tool_calls[]`.
 
@@ -153,7 +153,7 @@ Nodes:
 - **`plan_retrievals`.** Per sub-query, decides between semantic retrieval and the XBRL tool, based on `routing_plan.retrieval_modes`.
 - **`retrieve`.** Runs the plan, fills `retrievals[]`.
 - **`synthesize`.** LLM call. Structured output: a list of claims, each tagged with the chunk_id(s) it relies on.
-- **`verify_citations`.** No LLM. For each (claim, chunk_id) pair, runs an entailment check. Could be a small NLI model or a strict-prompt LLM judge — picked in Phase 6. Unverified claims get dropped or sent back to `retrieve` for one more try (max 1 retry).
+- **`verify_citations`.** For each (claim, chunk_id) pair, runs an entailment check via a strict-prompt LLM judge (see "Resolved in Phase 6" below). Unverified claims get dropped or sent back to `retrieve` for one more try (max 1 retry).
 - **`finalize`.** Formats the user-facing answer with `[Source: AAPL FY2025 10-K, Item 1A]` citations, resolved from chunk_ids.
 
 Edges are conditional. `verify_citations` either loops back to `retrieve` or moves on to `finalize`.
@@ -198,9 +198,12 @@ The agent also has a `lookup_financial_metric` tool that queries `xbrl_facts`. T
 
 ## Open questions
 
-- NLI model vs. LLM judge for citation verification. Decide in Phase 6 based on latency, cost, and how well it agrees with the rubric.
 - How to handle filings that restate prior years. Out of scope for v1. Track in a `restatements.md` log if it comes up.
 - Exhibit 13 / incorporated-by-reference parsing path. JPM and NVDA need it for full MD&A and financials coverage. Decide in Phase 1d or defer to post-v1.
+
+### Resolved in Phase 6
+
+- **NLI model vs. LLM judge for citation verification.** LLM judge: an NLI model would be a new model class this project has no other use for, while the strict-prompt LLM pattern was already proven in `eval/judge.py`. `verify_citations` grades one claim against only the sources it named, tighter than eval's whole-answer faithfulness check. See `agent/verify.py`.
 
 ### Resolved in Phase 5
 
