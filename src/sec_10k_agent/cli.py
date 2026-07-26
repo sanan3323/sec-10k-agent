@@ -9,6 +9,7 @@ Subcommands:
     ask           Ask a question over the indexed corpus (single-hop RAG).
     index         Embed chunks.parquet and load them into pgvector.
     eval          Run the golden-set eval harness and print a scored report.
+    agent         Multi-hop question answering: route, decompose, verify (Phase 6).
 """
 
 from __future__ import annotations
@@ -386,6 +387,65 @@ def eval_cmd(
         (out_dir / "report.json").write_text(to_json(report), encoding="utf-8")
         (out_dir / "report.md").write_text(format_markdown(report), encoding="utf-8")
         typer.echo(f"Wrote report.json + report.md to {out_dir}/")
+
+
+@app.command()
+def agent(
+    question: str = typer.Argument(..., help="The question to answer -- can span multiple companies/years."),
+    k: int = typer.Option(5, "--k", "-k", help="Chunks retrieved per subquery."),
+    hybrid: bool = typer.Option(
+        False, "--hybrid/--dense-only", help="Use the Phase 5 hybrid retriever for each subquery."
+    ),
+    show_trace: bool = typer.Option(
+        False, "--trace", help="Print the routing plan, subqueries, and per-claim verification."
+    ),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Answer a question via the multi-hop agent: route, decompose, retrieve,
+    synthesize, verify citations, finalize (Phase 6).
+
+    Unlike `ask` (single retrieval, single generation), this can split a
+    question across tickers or fiscal years, use the structured XBRL tool for
+    numeric questions, and drops any claim that fails citation verification.
+    Requires the pgvector corpus and a generator (XAI_API_KEY, OPENROUTER_API_KEY,
+    or OLLAMA_BASE_URL).
+    """
+    logging.basicConfig(
+        level=logging.DEBUG if verbose else logging.WARNING,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+    from sec_10k_agent.agent.orchestrator import run_agent
+    from sec_10k_agent.rag.llm import build_generator
+    from sec_10k_agent.retrieval import Retriever
+
+    if hybrid:
+        from sec_10k_agent.retrieval import HybridRetriever
+
+        retriever = HybridRetriever()
+    else:
+        retriever = Retriever()
+
+    generator = build_generator()
+    state = run_agent(question, retriever, generator, k=k)
+
+    if show_trace:
+        plan = state.routing_plan
+        typer.echo("Routing plan:")
+        typer.echo(f"  {plan.model_dump_json() if plan else '(none)'}")
+        typer.echo(f"\nSubqueries ({len(state.subqueries)}):")
+        for sq in state.subqueries:
+            typer.echo(f"  {sq.mode:<16} {sq.ticker or '-':<6} FY{sq.fiscal_year or '-'}  {sq.question}")
+        if state.tool_calls:
+            typer.echo(f"\nTool calls ({len(state.tool_calls)}):")
+            for call in state.tool_calls:
+                typer.echo(f"  {call}")
+        typer.echo(f"\nClaims (retry_count={state.retry_count}):")
+        for claim in state.verified_claims:
+            mark = "OK  " if claim.verified else "DROP"
+            typer.echo(f"  [{mark}] {claim.text}")
+        typer.echo()
+
+    typer.echo(state.final_answer)
 
 
 if __name__ == "__main__":
